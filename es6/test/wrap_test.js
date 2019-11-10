@@ -9,6 +9,7 @@ describe("wrap(string)", () => {
   it("converts to native as needed ", () => {
     let s = wrap("hello");
     expect("" + s).to.equal("hello");
+    expect(JSON.stringify(s)).to.equal(`"hello"`);
   });
 
   it("double wraps", () => {
@@ -39,5 +40,10 @@ describe("wrap(string)", () => {
     s1.replace("boo");
     s1.replace("hoo");
     expect(s1.latest() + "").to.equal("hoo");
+  });
+
+  it("ignores apply(null)", () => {
+    let s = wrap("hello");
+    expect(s.apply(null)).to.equal(s);
   });
 });

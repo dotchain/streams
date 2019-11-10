@@ -26,6 +26,11 @@ export class Stream {
     return this._next;
   }
 
+  appendRemote(c) {
+    // TODO: nyi
+    return this.append(c);
+  }
+
   next() {
     return this._next;
   }

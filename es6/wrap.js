@@ -46,15 +46,38 @@ class StreamBase {
     return this._value;
   }
 
+  toJSON() {
+    return this._value;
+  }
+
   replace(v) {
-    v = unwrap(v);
-    let c = new Replace(this._value, v);
+    return this.apply(new Replace(this._value, unwrap(v)));
+  }
+
+  apply(c) {
+    if (c == null) {
+      return this;
+    }
+
     let stream = this._stream.append(c);
+    return wrap(c.apply(this._value), stream);
+  }
+
+  applyRemote(c) {
+    if (c == null) {
+      return this;
+    }
+
+    let stream = this._stream.appendRemote(c);
     return wrap(c.apply(this._value), stream);
   }
 
   withStream(s) {
     return new String(this._value, s);
+  }
+
+  nextChange() {
+    return this._stream.nextChange();
   }
 
   next() {

@@ -55,9 +55,9 @@ expect("hello " + s1.latest()).to.equal("hello world");
     - ~streams.wrap for string type only~
     - ~Only method supported by string type is replace()~
     - ~Only change type is Replace~
-    - Simple transport (no merge/rebasing)
-    - sync() implementation
-    - In memory server
+    - ~Simple transport (no merge/rebasing)~
+    - ~sync() implementation~
+    - ~In memory server~
 2. Local session state caching
 3. Server persistence to files
 4. More atomic types (bool, number, date)

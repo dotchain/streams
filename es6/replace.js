@@ -10,4 +10,8 @@ export class Replace {
   apply() {
     return this.after;
   }
+
+  merge(other) {
+    return { self: this, other };
+  }
 }
