@@ -1,6 +1,12 @@
 # streams
 
-This implements a streams interface for transparent data syncing in ES6 using operational transforms.
+This repository contains a streams package which implements arbitrary
+data sync for browser (or node) clients using an extremely simple and
+mostly transparent API.
+
+This uses *Operations Transformation* underneath to support multiple
+collaborative clients but the specific API has been chosen with care
+to make it dead simple to use.
 
 ## Documentation
 
@@ -49,9 +55,9 @@ expect("hello " + s1.latest()).to.equal("hello world");
     - ~streams.wrap for string type only~
     - ~Only method supported by string type is replace()~
     - ~Only change type is Replace~
-    - Simple transport (no merge/rebasing)
-    - sync() implementation
-    - In memory server
+    - ~Simple transport (no merge/rebasing)~
+    - ~sync() implementation~
+    - ~In memory server~
 2. Local session state caching
 3. Server persistence to files
 4. More atomic types (bool, number, date)

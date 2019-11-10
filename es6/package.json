@@ -11,23 +11,24 @@
     "lint": "eslint --env mocha --env es6 ./ test/",
     "pretty": "find . -name '*.js' | grep -v node_modules | xargs yarn prettier --write",
     "test": "nyc mocha && karma start --e2e",
-    "karma": "karma start",
-    "e2e": "karma start --e2e"
+    "karma": "karma start"
   },
   "mocha": {
     "require": ["esm"],
     "opts": "test/**/*_test.js"
   },
   "nyc": {
-    "include": [
-      "replace.js",
-      "stream.js",
-      "wrap.js"
-    ],
+    "es-modules": true,
+    "cache": false,
+    "clean": true,
+    "all": true,
+    "instrument": true,
+    "include": [ "**" ],
     "exclude": [
       "**/test/**",
       "esmloader.js",
-      "karma.conf.js"
+      "karma.conf.js",
+      "generate_dist.js"
     ],
     "sourceMap": false,
     "instrument": true
@@ -55,22 +56,16 @@
   },
   "homepage": "https://github.com/dotchain/streams",
   "devDependencies": {
-    "benchmark": "^2.1.4",
-    "body-parser": "^1.19.0",
     "chai": "^4.2.0",
     "codecov": "^3.3.0",
-    "cors": "^2.8.5",
     "eslint": "^5.16.0",
     "esm": "^3.2.22",
-    "express": "^4.16.4",
-    "jsdoc-to-markdown": "^4.0.1",
     "karma": "^4.1.0",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^2.2.0",
     "karma-mocha": "^1.3.0",
     "karma-mocha-reporter": "^2.2.5",
     "mocha": "^6.1.4",
-    "node-fetch": "^2.3.0",
     "nyc": "^14.1.1",
     "prettier": "1.17.0"
   },

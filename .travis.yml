@@ -7,9 +7,7 @@ before_install:
    - cd es6;
    - yarn install;
 script:
-   - cd es6;
    - yarn test;
 after_success:
-  - cd es6;
   - yarn coverage;
 
