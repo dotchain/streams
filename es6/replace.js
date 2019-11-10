@@ -1,5 +1,6 @@
 "use strict";
 
+// Replace represents a change that replaces one value with another.
 export class Replace {
   constructor(before, after) {
     this.before = before;

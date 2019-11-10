@@ -1,6 +1,12 @@
 # streams
 
-This implements a streams interface for transparent data syncing in ES6 using operational transforms.
+This repository contains a streams package which implements arbitrary
+data sync for browser (or node) clients using an extremely simple and
+mostly transparent API.
+
+This uses *Operations Transformation* underneath to support multiple
+collaborative clients but the specific API has been chosen with care
+to make it dead simple to use.
 
 ## Documentation
 

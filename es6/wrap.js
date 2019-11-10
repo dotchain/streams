@@ -3,26 +3,39 @@
 import { Replace } from "./replace.js";
 import { Stream } from "./stream.js";
 
+// wrap wraps an object (an an optional stream) to return a stream
+// based proxy of this object.
+//
+// The return value mostly looks like the input object but has a few
+// extra methods:
+//
+// The replace() method replaces the value in the underlying stream.
+//
+// The next() returns the next value in this stream while latest()
+// returns the latest value in this stream.
 export function wrap(obj, stream) {
   stream = stream || new Stream();
   if (typeof obj == "string") {
     return new String(obj, stream);
   }
 
-  if (obj instanceof String) {
+  if (obj instanceof StreamBase) {
     return obj.withStream(stream);
   }
 }
 
+// unwrap is the inverse of wrap.
 export function unwrap(obj) {
-  if (obj instanceof String) {
+  if (obj instanceof StreamBase) {
     return obj._value;
   }
+
   if (typeof obj == "string") {
     return obj;
   }
 }
 
+// StreamBase is the base stream object used by most types.
 class StreamBase {
   constructor(value, stream) {
     this._value = value;
@@ -62,4 +75,5 @@ class StreamBase {
   }
 }
 
+// String is the wrapped version of a string.
 class String extends StreamBase {}
