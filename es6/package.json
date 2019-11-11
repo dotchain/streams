@@ -6,15 +6,17 @@
   "module": "main.js",
   "directories": {},
   "scripts": {
-    "build": "node generate_dist.js",
+    "build": "node scripts/build.js && yarn prettier --write test/examples_test.js",
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "lint": "eslint --env mocha --env es6 ./ test/",
     "pretty": "find . -name '*.js' | grep -v node_modules | xargs yarn prettier --write",
-    "test": "nyc mocha && karma start --e2e",
+    "test": "yarn build && nyc mocha && karma start --e2e",
     "karma": "karma start"
   },
   "mocha": {
-    "require": ["esm"],
+    "require": [
+      "esm"
+    ],
     "opts": "test/**/*_test.js"
   },
   "nyc": {
@@ -23,15 +25,16 @@
     "clean": true,
     "all": true,
     "instrument": true,
-    "include": [ "**" ],
+    "include": [
+      "**"
+    ],
     "exclude": [
       "**/test/**",
       "esmloader.js",
       "karma.conf.js",
-      "generate_dist.js"
+      "scripts/build.js"
     ],
-    "sourceMap": false,
-    "instrument": true
+    "sourceMap": false
   },
   "eslintIgnore": [
     "esmloader.js",
@@ -66,8 +69,10 @@
     "karma-mocha": "^1.3.0",
     "karma-mocha-reporter": "^2.2.5",
     "mocha": "^6.1.4",
+    "node-fetch": "^2.6.0",
     "nyc": "^14.1.1",
     "prettier": "1.17.0"
   },
-  "dependencies": {}
+  "dependencies": {
+  }
 }

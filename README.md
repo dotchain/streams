@@ -13,6 +13,7 @@ to make it dead simple to use.
 A stream can be created by wrapping any object:
 
 ```js
+// import {expect} from "chai";
 // import {wrap} from "github.com/dotchain/streams/es6";
 
 let s1 = wrap("hello");
@@ -21,15 +22,17 @@ let s1 = wrap("hello");
 For most practical purposes, the wrapped object works like the original object:
 
 ```js
+// import {expect} from "chai";
 // import {wrap} from "github.com/dotchain/streams/es6";
 
 let s1 = wrap("hello");
-expect(s1 + "world").to.equal("hello world");
+expect(s1 + " world").to.equal("hello world");
 ```
 
 In addition, wrapped objects support mutations methods, such as **replace**:
 
 ```js
+// import {expect} from "chai";
 // import {wrap} from "github.com/dotchain/streams/es6";
 
 let s1 = wrap("hello");
@@ -42,11 +45,50 @@ But all older versions of the object can obtain the latest value by
 calling **latest**:
 
 ```js
+// import {expect} from "chai";
 // import {wrap} from "github.com/dotchain/streams/es6";
 
 let s1 = wrap("hello");
 let s2 = s1.replace("world");
 expect("hello " + s1.latest()).to.equal("hello world");
+```
+
+### Network transport
+
+The following example illustrates a client-server setup.
+
+```js
+// import http from "http";
+// import fetch from "node-fetch";
+// import {MemStore, serve} from "github.com/dotchain/streams/es6";
+// import {MemCache, urlTransport, sync} from "github.com/dotchain/streams/es6";
+
+let server = startServer();
+let {root, xport} = startClient();
+
+root.replace("hello");
+await xport.push();
+expect(root.latest() + "").to.equal("hello");
+
+server.close();
+
+function startServer() {
+  let store = new MemStore();
+  let server = http.createServer((req, res) => serve(store, req, res));
+  server.listen(8042);
+  return server;
+}
+
+function startClient() {
+  let xport = urlTransport("http://localhost:8042/", fetch);
+  let count = 0;
+  let root = sync(new MemCache(), xport, () => {
+     count ++;
+     return `${count}`;
+  });
+  return {root, xport};
+}
+
 ```
 
 ## Roadmap
