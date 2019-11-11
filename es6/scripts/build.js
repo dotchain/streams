@@ -39,6 +39,9 @@ function compile(md) {
     if (path == `"github.com/dotchain/streams/es6"`) {
       path = `"../main.js"`;
     }
+    if (path == `"github.com/dotchain/streams/es6/file/file.js"`) {
+      path = `"../file/file.js"`;
+    }
     output += `import ${name} from ${path};\n`;
   }
   output += `\ndescribe("examples from README.md", () => {`;

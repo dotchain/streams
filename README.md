@@ -59,8 +59,10 @@ The following example illustrates a client-server setup.
 
 ```js
 // import http from "http";
+// import fs from "fs";
 // import fetch from "node-fetch";
-// import {MemStore, serve} from "github.com/dotchain/streams/es6";
+// import {serve} from "github.com/dotchain/streams/es6";
+// import {FileStore} from "github.com/dotchain/streams/es6/file/file.js";
 // import {MemCache, urlTransport, sync} from "github.com/dotchain/streams/es6";
 
 let server = startServer();
@@ -70,10 +72,14 @@ root.replace("hello");
 await xport.push();
 expect(root.latest() + "").to.equal("hello");
 
+let {root: root2, xport: xport2} = startClient();
+await xport2.pull();
+expect(root2.latest() + "").to.equal("hello");
 server.close();
+fs.unlinkSync("/tmp/ops.json");
 
 function startServer() {
-  let store = new MemStore();
+  let store = new FileStore("/tmp/ops.json");
   let server = http.createServer((req, res) => serve(store, req, res));
   server.listen(8042);
   return server;
@@ -93,15 +99,15 @@ function startClient() {
 
 ## Roadmap
 
-1. Minimal E2E implementation:
+1. ~Minimal E2E implementation:~
     - ~streams.wrap for string type only~
     - ~Only method supported by string type is replace()~
     - ~Only change type is Replace~
     - ~Simple transport (no merge/rebasing)~
     - ~sync() implementation~
     - ~In memory server~
-2. Local session state caching
-3. Server persistence to files
+2. ~Server persistence to files~
+3. Local session state caching
 4. More atomic types (bool, number, date)
 5. Dict type
     - streams.wrap support

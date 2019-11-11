@@ -20,7 +20,7 @@ export function serve(store, req, res) {
       res.end();
     } catch (err) {
       res.statusCode = 400;
-      return res.end(err);
+      return res.end(JSON.stringify({ error: err }));
     }
   });
 }

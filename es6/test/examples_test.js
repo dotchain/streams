@@ -3,8 +3,10 @@
 import { expect } from "chai";
 import { wrap } from "../main.js";
 import http from "http";
+import fs from "fs";
 import fetch from "node-fetch";
-import { MemStore, serve } from "../main.js";
+import { serve } from "../main.js";
+import { FileStore } from "../file/file.js";
 import { MemCache, urlTransport, sync } from "../main.js";
 
 describe("examples from README.md", () => {
@@ -39,8 +41,10 @@ describe("examples from README.md", () => {
   });
   it("does example 4", async () => {
     // import http from "http";
+    // import fs from "fs";
     // import fetch from "node-fetch";
-    // import {MemStore, serve} from "github.com/dotchain/streams/es6";
+    // import {serve} from "github.com/dotchain/streams/es6";
+    // import {FileStore} from "github.com/dotchain/streams/es6/file/file.js";
     // import {MemCache, urlTransport, sync} from "github.com/dotchain/streams/es6";
 
     let server = startServer();
@@ -50,10 +54,14 @@ describe("examples from README.md", () => {
     await xport.push();
     expect(root.latest() + "").to.equal("hello");
 
+    let { root: root2, xport: xport2 } = startClient();
+    await xport2.pull();
+    expect(root2.latest() + "").to.equal("hello");
     server.close();
+    fs.unlinkSync("/tmp/ops.json");
 
     function startServer() {
-      let store = new MemStore();
+      let store = new FileStore("/tmp/ops.json");
       let server = http.createServer((req, res) => serve(store, req, res));
       server.listen(8042);
       return server;
