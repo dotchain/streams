@@ -11,6 +11,8 @@
         "Uint32Array": true,
         "Uint8Array": true,
         "ArrayBuffer": true,
-        "Map": true
+        "Map": true,
+        "require": true,
+        "__filename": true
     }
 }

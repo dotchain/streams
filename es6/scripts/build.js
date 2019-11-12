@@ -36,11 +36,13 @@ function compile(md) {
   let output = `"use strict";\n\n`;
   for (let name in imports) {
     let path = imports[name].trim();
-    if (path == `"github.com/dotchain/streams/es6"`) {
-      path = `"../main.js"`;
-    }
-    if (path == `"github.com/dotchain/streams/es6/file/file.js"`) {
-      path = `"../file/file.js"`;
+    let prefix = `"github.com/dotchain/streams/es6`;
+    if (path.startsWith(prefix)) {
+      if (path == prefix + `"`) {
+        path = `"../main.js"`;
+      } else {
+        path = `"..` + path.slice(prefix.length);
+      }
     }
     output += `import ${name} from ${path};\n`;
   }
@@ -55,7 +57,10 @@ function main() {
   const root = self.replace("es6/scripts/build.js", "");
   const md = root + "README.md";
   const output = root + "es6/test/examples_test.js";
-  console.log(fs.writeFileSync(output, compile(md)));
+  const err = fs.writeFileSync(output, compile(md));
+  if (err) {
+    throw err;
+  }
 }
 
 main();

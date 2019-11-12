@@ -12,9 +12,6 @@ export { Replace };
 import { sync } from "./sync.js";
 export { sync };
 
-import { MemCache } from "./memcache.js";
-export { MemCache };
-
 import { Transport, urlTransport } from "./transport.js";
 export { Transport, urlTransport };
 
