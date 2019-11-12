@@ -15,24 +15,41 @@ import { Stream } from "./stream.js";
 // returns the latest value in this stream.
 export function wrap(obj, stream) {
   stream = stream || new Stream();
-  if (typeof obj == "string") {
-    return new String(obj, stream);
+  if (obj === null) {
+    return new Null(obj, stream);
   }
 
   if (obj instanceof StreamBase) {
     return obj.withStream(stream);
   }
+
+  if (obj instanceof Date) {
+    return new DateTime(obj, stream);
+  }
+
+  switch (typeof obj) {
+    case "string":
+      return new String(obj, stream);
+    case "number":
+      return new Number(obj, stream);
+    case "boolean":
+      return new Bool(obj, stream);
+    case "object":
+      if (obj.type === "date") {
+        return new DateTime(new Date(obj.value), stream);
+      }
+  }
+
+  return obj;
 }
 
 // unwrap is the inverse of wrap.
 export function unwrap(obj) {
   if (obj instanceof StreamBase) {
-    return obj._value;
+    return obj.toJSON();
   }
 
-  if (typeof obj == "string") {
-    return obj;
-  }
+  return obj;
 }
 
 // StreamBase is the base stream object used by most types.
@@ -100,3 +117,19 @@ class StreamBase {
 
 // String is the wrapped version of a string.
 class String extends StreamBase {}
+
+// Number is the wrapped version of a number.
+class Number extends StreamBase {}
+
+// Bool is the wrapped version of a bool,
+class Bool extends StreamBase {}
+
+// Null is the wrapped version of null.
+class Null extends StreamBase {}
+
+// DateTime is the wrapped version of a date.
+class DateTime extends StreamBase {
+  toJSON() {
+    return { type: "date", value: this._value.valueOf() };
+  }
+}

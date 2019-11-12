@@ -55,13 +55,19 @@ describe("examples from README.md", () => {
     let server = startServer();
     let { root, xport } = startClient();
 
+    // update root
     root.replace("hello");
-    await xport.push();
     expect(root.latest() + "").to.equal("hello");
 
+    // push the changes to the server
+    await xport.push();
+
+    // check that these are visible on another client
     let { root: root2, xport: xport2 } = startClient();
     await xport2.pull();
     expect(root2.latest() + "").to.equal("hello");
+
+    // cleanup
     server.close();
     fs.unlinkSync("/tmp/ops.json");
 

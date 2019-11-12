@@ -5,6 +5,32 @@
 import { expect } from "chai";
 import { wrap, unwrap } from "../main.js";
 
+describe("wrap(basic types)", () => {
+  const cases = {
+    strings: "hello",
+    true: true,
+    false: false,
+    number: 5.3,
+    date: { type: "date", value: Date.now() },
+    null: null
+  };
+
+  for (let test in cases) {
+    it(`wraps ${test}`, () => {
+      let base = cases[test];
+      let s = wrap(base);
+      expect(unwrap(s)).to.deep.equal(base);
+      expect(JSON.stringify(s)).to.equal(JSON.stringify(base));
+    });
+  }
+
+  it("wraps dates", () => {
+    let now = new Date();
+    let s = wrap(now);
+    expect(s.valueOf()).to.equal(now);
+  });
+});
+
 describe("wrap(string)", () => {
   it("converts to native as needed ", () => {
     let s = wrap("hello");

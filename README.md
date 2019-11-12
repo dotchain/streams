@@ -8,7 +8,17 @@ This uses *Operations Transformation* underneath to support multiple
 collaborative clients but the specific API has been chosen with care
 to make it dead simple to use.
 
+## Contents
+1. [Documentation](#documentation)
+    1. [Wrapping and unwrapping](#wrapping-and-unwrapping)
+    2. [Mutations](#mutations)
+    3. [Network synchronization](#network-synchronization)
+    4. [Other basic types](#other-basic-types)
+2. [Roadmap](#roadmap)
+
 ## Documentation
+
+### Wrapping and unwrapping
 
 A stream can be created by wrapping any object:
 
@@ -30,6 +40,8 @@ For most practical purposes, the wrapped object works like the original object:
 let s1 = wrap("hello");
 expect(s1 + " world").to.equal("hello world");
 ```
+
+### Mutations
 
 In addition, wrapped objects support mutations methods, such as **replace**:
 
@@ -55,7 +67,7 @@ let s2 = s1.replace("world");
 expect("" + s1.latest()).to.equal("" + s2);
 ```
 
-### Network transport
+### Network synchronization
 
 The following example illustrates a client-server setup.
 
@@ -71,13 +83,19 @@ The following example illustrates a client-server setup.
 let server = startServer();
 let {root, xport} = startClient();
 
+// update root
 root.replace("hello");
-await xport.push();
 expect(root.latest() + "").to.equal("hello");
 
+// push the changes to the server
+await xport.push();
+
+// check that these are visible on another client
 let {root: root2, xport: xport2} = startClient();
 await xport2.pull();
 expect(root2.latest() + "").to.equal("hello");
+
+// cleanup
 server.close();
 fs.unlinkSync("/tmp/ops.json");
 
@@ -109,6 +127,18 @@ function fakeLocalStorage() {
 
 ```
 
+### Other basic types
+
+Other standard types like **number**, **boolean**, **Date** or
+**null** can be wrapped as well.  When wrapped, these do implement the
+[valueOf](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/valueOf)
+method, so callers can use that to unwrap the values.
+
+**Date** is a little special in that the wrapped value gets serialized
+to `{type: "date", value: <utc_milliseconds>}` instead of a human
+readable ISO string.  `Unwrap` returns this value too (though
+`valueOf` returns the native Date object).
+
 ## Roadmap
 
 1. ~Minimal E2E implementation:~
@@ -120,7 +150,7 @@ function fakeLocalStorage() {
     - ~In memory server~
 2. ~Server persistence to files~
 3. ~Local session state caching~
-4. More atomic types (bool, number, date)
+4. ~More atomic types (bool, number, date)~
 5. Dict type
     - streams.wrap support
     - PathChange change type
