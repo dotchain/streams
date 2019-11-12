@@ -15,8 +15,10 @@ A stream can be created by wrapping any object:
 ```js
 // import {expect} from "chai";
 // import {wrap} from "github.com/dotchain/streams/es6";
+// import {unwrap} from "github.com/dotchain/streams/es6";
 
 let s1 = wrap("hello");
+expect(unwrap(s1)).to.equal("hello");
 ```
 
 For most practical purposes, the wrapped object works like the original object:
@@ -50,7 +52,7 @@ calling **latest**:
 
 let s1 = wrap("hello");
 let s2 = s1.replace("world");
-expect("hello " + s1.latest()).to.equal("hello world");
+expect("" + s1.latest()).to.equal("" + s2);
 ```
 
 ### Network transport
@@ -63,7 +65,8 @@ The following example illustrates a client-server setup.
 // import fetch from "node-fetch";
 // import {serve} from "github.com/dotchain/streams/es6";
 // import {FileStore} from "github.com/dotchain/streams/es6/file/file.js";
-// import {MemCache, urlTransport, sync} from "github.com/dotchain/streams/es6";
+// import {Cache} from "github.com/dotchain/streams/es6/local_storage/cache.js";
+// import {urlTransport, sync} from "github.com/dotchain/streams/es6";
 
 let server = startServer();
 let {root, xport} = startClient();
@@ -88,11 +91,20 @@ function startServer() {
 function startClient() {
   let xport = urlTransport("http://localhost:8042/", fetch);
   let count = 0;
-  let root = sync(new MemCache(), xport, () => {
+  let ls = fakeLocalStorage(); // window.localStorage on browsers
+  let root = sync(new Cache(ls), xport, () => {
      count ++;
      return `${count}`;
   });
   return {root, xport};
+}
+
+function fakeLocalStorage() {
+  let storage = {};
+  return {
+    setItem: (key, value) => { storage[key] = value + ""; },
+    getItem: (key) => storage[key]
+  }
 }
 
 ```
@@ -107,7 +119,7 @@ function startClient() {
     - ~sync() implementation~
     - ~In memory server~
 2. ~Server persistence to files~
-3. Local session state caching
+3. ~Local session state caching~
 4. More atomic types (bool, number, date)
 5. Dict type
     - streams.wrap support

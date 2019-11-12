@@ -3,21 +3,16 @@
 /* eslint-env mocha, browser */
 
 import { expect } from "chai";
-import {
-  sync,
-  MemCache,
-  urlTransport,
-  serve,
-  MemStore,
-  Replace
-} from "../main.js";
+import { Cache } from "../local_storage/cache.js";
+import { sync, urlTransport, serve } from "../main.js";
+import { MemStore, Replace } from "../main.js";
 
 describe("e2e piped", () => {
   it("writes and reads operations to the server", async () => {
     let store = new MemStore();
     let fetch = fetchPipe((req, res) => serve(store, req, res));
     let xport = urlTransport("boo", fetch);
-    let root = sync(new MemCache(), xport, newID());
+    let root = sync(new Cache(fakeLocalStorage()), xport, newID());
     root = root.replace("hello");
     root = root.replace("world");
 
@@ -25,7 +20,7 @@ describe("e2e piped", () => {
     expect(store.ops.length).to.equal(2);
 
     xport = urlTransport("boo", fetch);
-    root = sync(new MemCache(), xport, newID());
+    root = sync(new Cache(fakeLocalStorage()), xport, newID());
     await xport.pull();
     expect(root.latest() + "").to.equal("world");
   });
@@ -34,7 +29,7 @@ describe("e2e piped", () => {
     let store = new MemStore();
     let fetch = fetchPipe((req, res) => serve(store, req, res));
     let xport = urlTransport("boo", fetch);
-    let root = sync(new MemCache(), xport, newID());
+    let root = sync(new Cache(fakeLocalStorage()), xport, newID());
     xport.write({
       id: "boo",
       version: -1,
@@ -55,7 +50,7 @@ describe("e2e piped", () => {
     let store = new MemStore();
     let fetch = fetchPipe((req, res) => serve(store, req, res));
     let xport = urlTransport("boo", fetch);
-    let root = sync(new MemCache(), xport, newID());
+    let root = sync(new Cache(fakeLocalStorage()), xport, newID());
     xport.write({
       id: "boo",
       version: -1,
@@ -110,4 +105,14 @@ function fetchPipe(serve) {
       };
       serve(req, res);
     });
+}
+
+function fakeLocalStorage() {
+  let storage = {};
+  return {
+    setItem: (key, value) => {
+      storage[key] = value + "";
+    },
+    getItem: key => storage[key]
+  };
 }
