@@ -120,9 +120,6 @@ class Number extends StreamBase {}
 // Bool is the wrapped version of a bool,
 class Bool extends StreamBase {}
 
-// Null is the wrapped version of null.
-class Null extends StreamBase {}
-
 // DateTime is the wrapped version of a date.
 class DateTime extends StreamBase {
   toJSON() {
@@ -130,4 +127,4 @@ class DateTime extends StreamBase {
   }
 }
 
-const Dict = buildDict({ wrap, StreamBase });
+const { Dict, Null } = buildDict({ wrap, StreamBase });

@@ -43,7 +43,13 @@ export function buildDict({ wrap, StreamBase }) {
     }
   }
 
-  return class Dict extends StreamBase {
+  class Null extends StreamBase {
+    get(key) {
+      return new Null(null, new ChildStream(this._stream, key));
+    }
+  }
+
+  class Dict extends StreamBase {
     constructor(obj, stream) {
       super(obj, stream);
       let getter = key => () => wrap(obj[key], new ChildStream(stream, key));
@@ -52,6 +58,12 @@ export function buildDict({ wrap, StreamBase }) {
           Object.defineProperty(this, key, { get: getter(key) });
         }
       }
+    }
+
+    get(key) {
+      let obj = this.toJSON();
+      let v = obj && obj.hasOwnProperty(key) ? obj[key] : null;
+      return wrap(v, new ChildStream(this._stream, key));
     }
 
     replacePath(path, value) {
@@ -65,5 +77,7 @@ export function buildDict({ wrap, StreamBase }) {
       }
       return this.apply(new PathChange(path, new Replace(before, value)));
     }
-  };
+  }
+
+  return { Null, Dict };
 }
