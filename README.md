@@ -107,19 +107,32 @@ expect(s1.latest().hello.world.valueOf()).to.equal("boo");
 expect(s2.hello.world.valueOf()).to.equal("boo");
 ```
 
-This is also a convenient way to set a field that doesn't yet exist:
-
+This is also a convenient way to set an inner field if that path doesn't exist:
 
 ```js
 // import {expect} from "chai";
 // import {wrap} from "github.com/dotchain/streams/es6";
 
 let s1 = wrap({hello: "world"})
-let s2 = s1.replacePath(["boo"], "hoo");
-expect(s2.boo.valueOf()).to.equal("hoo");
-expect(s1.latest().boo.valueOf()).to.equal("hoo");
+let s2 = s1.replacePath(["boo", "hoo"], "hoo");
+expect(s2.boo.hoo.valueOf()).to.equal("hoo");
+expect(s1.latest().boo.hoo.valueOf()).to.equal("hoo");
 ```
 
+Note that a field that does not exist can also be fetched using **get**:
+
+```js
+// import {expect} from "chai";
+// import {wrap} from "github.com/dotchain/streams/es6";
+
+let s1 = wrap({hello: "world"})
+let inner = s1.get("boo").get("hoo");
+expect(inner.valueOf()).to.equal(null);
+
+s1.get("boo").get("hoo").replace("hoot");
+expect(s1.latest().boo.hoo.valueOf()).to.equal("hoot");
+expect(inner.latest().valueOf()).to.equal("hoot");
+```
 
 ### Network synchronization
 
