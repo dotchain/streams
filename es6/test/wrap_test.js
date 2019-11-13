@@ -31,6 +31,18 @@ describe("wrap(basic types)", () => {
   });
 });
 
+describe("wrap(dict)", () => {
+  it("wraps dicts", () => {
+    let s = wrap({ hello: "world", boo: "hoo" });
+    expect(s.hello.valueOf()).to.equal("world");
+    expect(s.boo.valueOf()).to.equal("hoo");
+
+    let gb = s.hello.replace("goodbye");
+    expect(gb.valueOf()).to.equal("goodbye");
+    expect(s.latest().hello.valueOf()).to.equal("goodbye");
+  });
+});
+
 describe("wrap(string)", () => {
   it("converts to native as needed ", () => {
     let s = wrap("hello");

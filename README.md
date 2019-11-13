@@ -11,9 +11,11 @@ to make it dead simple to use.
 ## Contents
 1. [Documentation](#documentation)
     1. [Wrapping and unwrapping](#wrapping-and-unwrapping)
-    2. [Mutations](#mutations)
-    3. [Network synchronization](#network-synchronization)
-    4. [Other basic types](#other-basic-types)
+    2. [Wrapping hashes](#wrapping-hashes)
+    3. [Mutations](#mutations)
+    4. [Modifying hashes](#modifying-hashes)
+    5. [Network synchronization](#network-synchronization)
+    6. [Other basic types](#other-basic-types)
 2. [Roadmap](#roadmap)
 
 ## Documentation
@@ -25,10 +27,9 @@ A stream can be created by wrapping any object:
 ```js
 // import {expect} from "chai";
 // import {wrap} from "github.com/dotchain/streams/es6";
-// import {unwrap} from "github.com/dotchain/streams/es6";
 
 let s1 = wrap("hello");
-expect(unwrap(s1)).to.equal("hello");
+expect(s1.valueOf()).to.equal("hello");
 ```
 
 For most practical purposes, the wrapped object works like the original object:
@@ -39,6 +40,18 @@ For most practical purposes, the wrapped object works like the original object:
 
 let s1 = wrap("hello");
 expect(s1 + " world").to.equal("hello world");
+```
+
+### Wrapping hashes
+
+The wrapping works transparently for hashes as well.
+
+```js
+// import {expect} from "chai";
+// import {wrap} from "github.com/dotchain/streams/es6";
+
+let s1 = wrap({hello: {boo: "hoo"}});
+expect(s1.hello.boo + "t").to.equal("hoot");
 ```
 
 ### Mutations
@@ -66,6 +79,47 @@ let s1 = wrap("hello");
 let s2 = s1.replace("world");
 expect("" + s1.latest()).to.equal("" + s2);
 ```
+
+### Modifying hashes
+
+Replace works on hashes too:
+
+```js
+// import {expect} from "chai";
+// import {wrap} from "github.com/dotchain/streams/es6";
+
+let s1 = wrap({hello: {world: "hey"}})
+let s2 = s1.hello.world.replace("world");
+expect(s2.valueOf()).to.equal("world");
+expect(s1.latest().hello.world.valueOf()).to.equal("world");
+```
+
+A frequent operation for hashes is to replace a inner path but apply
+that on the current object. This is done with **replacePath**
+
+```js
+// import {expect} from "chai";
+// import {wrap} from "github.com/dotchain/streams/es6";
+
+let s1 = wrap({hello: {world: "hey"}})
+let s2 = s1.replacePath(["hello", "world"], "boo");
+expect(s1.latest().hello.world.valueOf()).to.equal("boo");
+expect(s2.hello.world.valueOf()).to.equal("boo");
+```
+
+This is also a convenient way to set a field that doesn't yet exist:
+
+
+```js
+// import {expect} from "chai";
+// import {wrap} from "github.com/dotchain/streams/es6";
+
+let s1 = wrap({hello: "world"})
+let s2 = s1.replacePath(["boo"], "hoo");
+expect(s2.boo.valueOf()).to.equal("hoo");
+expect(s1.latest().boo.valueOf()).to.equal("hoo");
+```
+
 
 ### Network synchronization
 
@@ -151,10 +205,10 @@ readable ISO string.  `Unwrap` returns this value too (though
 2. ~Server persistence to files~
 3. ~Local session state caching~
 4. ~More atomic types (bool, number, date)~
-5. Dict type
-    - streams.wrap support
-    - PathChange change type
-    - fields accessible using dot notation
+5. ~Dict type~
+    - ~streams.wrap support~
+    - ~PathChange change type~
+    - ~fields accessible using dot notation~
 7. Collections
     - map, filter, dict, merge
 6. Collaboration

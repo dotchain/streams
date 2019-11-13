@@ -2,7 +2,6 @@
 
 import { expect } from "chai";
 import { wrap } from "../main.js";
-import { unwrap } from "../main.js";
 import http from "http";
 import fs from "fs";
 import fetch from "node-fetch";
@@ -15,10 +14,9 @@ describe("examples from README.md", () => {
   it("does example 0", async () => {
     // import {expect} from "chai";
     // import {wrap} from "github.com/dotchain/streams/es6";
-    // import {unwrap} from "github.com/dotchain/streams/es6";
 
     let s1 = wrap("hello");
-    expect(unwrap(s1)).to.equal("hello");
+    expect(s1.valueOf()).to.equal("hello");
   });
   it("does example 1", async () => {
     // import {expect} from "chai";
@@ -31,9 +29,8 @@ describe("examples from README.md", () => {
     // import {expect} from "chai";
     // import {wrap} from "github.com/dotchain/streams/es6";
 
-    let s1 = wrap("hello");
-    let s2 = s1.replace("world");
-    expect("hello " + s2).to.equal("hello world");
+    let s1 = wrap({ hello: { boo: "hoo" } });
+    expect(s1.hello.boo + "t").to.equal("hoot");
   });
   it("does example 3", async () => {
     // import {expect} from "chai";
@@ -41,9 +38,44 @@ describe("examples from README.md", () => {
 
     let s1 = wrap("hello");
     let s2 = s1.replace("world");
-    expect("" + s1.latest()).to.equal("" + s2);
+    expect("hello " + s2).to.equal("hello world");
   });
   it("does example 4", async () => {
+    // import {expect} from "chai";
+    // import {wrap} from "github.com/dotchain/streams/es6";
+
+    let s1 = wrap("hello");
+    let s2 = s1.replace("world");
+    expect("" + s1.latest()).to.equal("" + s2);
+  });
+  it("does example 5", async () => {
+    // import {expect} from "chai";
+    // import {wrap} from "github.com/dotchain/streams/es6";
+
+    let s1 = wrap({ hello: { world: "hey" } });
+    let s2 = s1.hello.world.replace("world");
+    expect(s2.valueOf()).to.equal("world");
+    expect(s1.latest().hello.world.valueOf()).to.equal("world");
+  });
+  it("does example 6", async () => {
+    // import {expect} from "chai";
+    // import {wrap} from "github.com/dotchain/streams/es6";
+
+    let s1 = wrap({ hello: { world: "hey" } });
+    let s2 = s1.replacePath(["hello", "world"], "boo");
+    expect(s1.latest().hello.world.valueOf()).to.equal("boo");
+    expect(s2.hello.world.valueOf()).to.equal("boo");
+  });
+  it("does example 7", async () => {
+    // import {expect} from "chai";
+    // import {wrap} from "github.com/dotchain/streams/es6";
+
+    let s1 = wrap({ hello: "world" });
+    let s2 = s1.replacePath(["boo"], "hoo");
+    expect(s2.boo.valueOf()).to.equal("hoo");
+    expect(s1.latest().boo.valueOf()).to.equal("hoo");
+  });
+  it("does example 8", async () => {
     // import http from "http";
     // import fs from "fs";
     // import fetch from "node-fetch";
