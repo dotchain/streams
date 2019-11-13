@@ -20,15 +20,10 @@ export class Stream {
     this._nextChange = null;
   }
 
-  append(c) {
+  append(c, older) {
     this._nextChange = c;
     this._next = new Stream();
     return this._next;
-  }
-
-  appendRemote(c) {
-    // TODO: nyi
-    return this.append(c);
   }
 
   next() {

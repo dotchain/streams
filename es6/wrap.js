@@ -73,21 +73,12 @@ class StreamBase {
     return this.apply(new Replace(this._value, unwrap(v)));
   }
 
-  apply(c) {
+  apply(c, older) {
     if (c == null) {
       return this;
     }
 
-    let stream = this._stream.append(c);
-    return wrap(c.apply(this._value), stream);
-  }
-
-  applyRemote(c) {
-    if (c == null) {
-      return this;
-    }
-
-    let stream = this._stream.appendRemote(c);
+    let stream = this._stream.append(c, older);
     return wrap(c.apply(this._value), stream);
   }
 

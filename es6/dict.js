@@ -10,13 +10,8 @@ export function buildDict({ wrap, StreamBase }) {
       this.key = key;
     }
 
-    append(c) {
-      let parent = this.parent.append(new PathChange([this.key], c));
-      return new ChildStream(parent, this.key);
-    }
-
-    appendRemote(c) {
-      let parent = this.parent.appendRemote(new PathChange([this.key], c));
+    append(c, older) {
+      let parent = this.parent.append(new PathChange([this.key], c), older);
       return new ChildStream(parent, this.key);
     }
 

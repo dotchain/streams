@@ -22,7 +22,7 @@ export class PathChange {
     return result;
   }
 
-  merge(other) {
+  merge(other, older) {
     return { self: this, other };
   }
 }
