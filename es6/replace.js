@@ -11,7 +11,7 @@ export class Replace {
     return this.after;
   }
 
-  merge(other) {
+  merge(other, older) {
     return { self: this, other };
   }
 }

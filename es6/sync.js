@@ -42,7 +42,7 @@ export function sync(cache, transport, newID) {
       op = self;
       merge = other;
       cache.setMerge(merge);
-      local = local.applyRemote(op.change);
+      local = local.apply(op.change, true);
     }
     version = op.version;
     cache.setVersion(version);
