@@ -2,6 +2,7 @@
 
 import { Replace } from "./replace.js";
 import { Stream } from "./stream.js";
+import { buildDict } from "./dict.js";
 
 // wrap wraps an object (an an optional stream) to return a stream
 // based proxy of this object.
@@ -35,9 +36,10 @@ export function wrap(obj, stream) {
     case "boolean":
       return new Bool(obj, stream);
     case "object":
-      if (obj.type === "date") {
+      if (obj.type === "date" && typeof obj.value === "number") {
         return new DateTime(new Date(obj.value), stream);
       }
+      return new Dict(obj, stream);
   }
 
   return obj;
@@ -100,8 +102,11 @@ class StreamBase {
   next() {
     let next = this._stream.next();
     let nextChange = this._stream.nextChange();
-    if (next == null || nextChange == null) {
+    if (next === null) {
       return null;
+    }
+    if (nextChange === null) {
+      return this.withStream(next);
     }
     return wrap(nextChange.apply(this._value), next);
   }
@@ -133,3 +138,5 @@ class DateTime extends StreamBase {
     return { type: "date", value: this._value.valueOf() };
   }
 }
+
+const Dict = buildDict({ wrap, StreamBase });
