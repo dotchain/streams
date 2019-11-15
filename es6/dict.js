@@ -66,6 +66,19 @@ export function buildDict({ wrap, StreamBase }) {
       return wrap(v, new ChildStream(this._stream, key));
     }
 
+    exists(key) {
+      return this.toJSON().hasOwnProperty(key);
+    }
+
+    forEachKey(fn) {
+      let obj = this.toJSON();
+      for (let key in obj) {
+        if (obj.hasOwnProperty(key)) {
+          fn(key);
+        }
+      }
+    }
+
     replacePath(path, value) {
       let before = this.toJSON();
       for (let key of path) {

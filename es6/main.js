@@ -17,3 +17,7 @@ export { Transport, urlTransport };
 
 import { serve, MemStore } from "./server.js";
 export { serve, MemStore };
+
+import { buildMerge } from "./merge.js";
+const merge = buildMerge({ wrap });
+export { merge };
