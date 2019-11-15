@@ -14,8 +14,9 @@ to make it dead simple to use.
     2. [Wrapping hashes](#wrapping-hashes)
     3. [Mutations](#mutations)
     4. [Modifying hashes](#modifying-hashes)
-    5. [Network synchronization](#network-synchronization)
-    6. [Other basic types](#other-basic-types)
+    5. [Merge](#merge)
+    6. [Network synchronization](#network-synchronization)
+    7. [Other basic types](#other-basic-types)
 2. [Roadmap](#roadmap)
 
 ## Documentation
@@ -134,6 +135,26 @@ expect(s1.latest().boo.hoo.valueOf()).to.equal("hoot");
 expect(inner.latest().valueOf()).to.equal("hoot");
 ```
 
+### Merge
+
+Two separate object streams can be combined with `merge`:
+
+
+```js
+// import {expect} from "chai";
+// import {wrap} from "github.com/dotchain/streams/es6";
+// import {merge} from "github.com/dotchain/streams/es6";
+
+let s1 = wrap({hello: "world"});
+let s2 = wrap({boo: "hoo"});
+let s3 = merge([s1, s2]);
+
+s2.boo.replace("hoot");
+
+expect(s3.latest().boo.valueOf()).to.equal("hoot");
+expect(s3.latest().hello.valueOf()).to.equal("world");
+```
+
 ### Network synchronization
 
 The following example illustrates a client-server setup.
@@ -223,7 +244,7 @@ readable ISO string.  `Unwrap` returns this value too (though
     - ~PathChange change type~
     - ~fields accessible using dot notation~
 7. Collections
-    - map, filter, dict, merge
+    - map, filter, dict, ~merge~
 6. Collaboration
     - merge support in change types
     - merge support in stream base class

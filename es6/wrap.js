@@ -20,8 +20,12 @@ export function wrap(obj, stream) {
     return new Null(obj, stream);
   }
 
-  if (obj instanceof StreamBase) {
+  if (obj.withStream) {
     return obj.withStream(stream);
+  }
+
+  if (obj.nextChange) {
+    return obj;
   }
 
   if (obj instanceof Date) {
@@ -83,7 +87,7 @@ class StreamBase {
   }
 
   withStream(s) {
-    return new String(this._value, s);
+    return new this.constructor(this._value, s);
   }
 
   nextChange() {

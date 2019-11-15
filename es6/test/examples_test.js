@@ -2,6 +2,7 @@
 
 import { expect } from "chai";
 import { wrap } from "../main.js";
+import { merge } from "../main.js";
 import http from "http";
 import fs from "fs";
 import fetch from "node-fetch";
@@ -90,6 +91,20 @@ describe("examples from README.md", () => {
     expect(inner.latest().valueOf()).to.equal("hoot");
   });
   it("does example 9", async () => {
+    // import {expect} from "chai";
+    // import {wrap} from "github.com/dotchain/streams/es6";
+    // import {merge} from "github.com/dotchain/streams/es6";
+
+    let s1 = wrap({ hello: "world" });
+    let s2 = wrap({ boo: "hoo" });
+    let s3 = merge([s1, s2]);
+
+    s2.boo.replace("hoot");
+
+    expect(s3.latest().boo.valueOf()).to.equal("hoot");
+    expect(s3.latest().hello.valueOf()).to.equal("world");
+  });
+  it("does example 10", async () => {
     // import http from "http";
     // import fs from "fs";
     // import fetch from "node-fetch";
