@@ -1,42 +1,48 @@
 "use strict";
 
-import { wrapChange } from "./change.js";
+export function buildOperation(types) {
+  types.Operation = class Operation {
+    constructor(id, version, basis, parentID, change) {
+      this.id = id;
+      this.version = version;
+      this.basis = basis;
+      this.parentID = parentID;
+      this.change = change;
+    }
 
-export class Operation {
-  constructor(id, version, basis, parentID, change) {
-    this.id = id;
-    this.version = version;
-    this.basis = basis;
-    this.parentID = parentID;
-    this.change = change;
-  }
+    withChange(c) {
+      return new Operation(this.id, this.verison, this.basis, this.parentID, c);
+    }
 
-  withChange(c) {
-    return new Operation(this.id, this.verison, this.basis, this.parentID, c);
-  }
-
-  merge(others) {
-    if (Array.isArray(others)) {
-      let self = this;
-      let results = [];
-      for (let other of others) {
-        let result = self.merge(other);
-        self = result.self;
-        results.push(result.other);
+    merge(others) {
+      if (Array.isArray(others)) {
+        let self = this;
+        let results = [];
+        for (let other of others) {
+          let result = self.merge(other);
+          self = result.self;
+          results.push(result.other);
+        }
+        return { self, other: results };
       }
-      return { self, other: results };
+
+      if (this.change == null || others.change == null) {
+        return { self: this, other: others };
+      }
+      let result = this.change.merge(others.change);
+      let self = this.withChange(result.self);
+      let other = others.withChange(result.other);
+      return { self, other };
     }
 
-    if (this.change == null || others.change == null) {
-      return { self: this, other: others };
+    static wrap({ id, version, basis, parentID, change }) {
+      let c = null;
+      if (change && change.path) {
+        c = new types.PathChange(change.path, change.change);
+      } else if (change) {
+        c = new types.Replace(change.before, change.after);
+      }
+      return new Operation(id, version, basis, parentID, c);
     }
-    let result = this.change.merge(others.change);
-    let self = this.withChange(result.self);
-    let other = others.withChange(result.other);
-    return { self, other };
-  }
-
-  static wrap({ id, version, basis, parentID, change }) {
-    return new Operation(id, version, basis, parentID, wrapChange(change));
-  }
+  };
 }

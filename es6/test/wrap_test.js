@@ -3,7 +3,7 @@
 /* eslint-env mocha, browser */
 
 import { expect } from "chai";
-import { wrap, unwrap } from "../main.js";
+import { wrap } from "../main.js";
 
 describe("wrap(basic types)", () => {
   const cases = {
@@ -19,7 +19,9 @@ describe("wrap(basic types)", () => {
     it(`wraps ${test}`, () => {
       let base = cases[test];
       let s = wrap(base);
-      expect(unwrap(s)).to.deep.equal(base);
+      if (test != "date") {
+        expect(s.valueOf()).to.deep.equal(base);
+      }
       expect(JSON.stringify(s)).to.equal(JSON.stringify(base));
     });
   }
@@ -53,11 +55,6 @@ describe("wrap(string)", () => {
   it("double wraps", () => {
     let s = wrap("hello");
     expect(wrap(s) + "").to.equal("hello");
-  });
-
-  it("unwraps", () => {
-    expect(unwrap("hello")).to.equal("hello");
-    expect(unwrap(wrap("hello"))).to.equal("hello");
   });
 
   it("replaces", () => {
