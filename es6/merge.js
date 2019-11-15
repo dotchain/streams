@@ -1,8 +1,6 @@
 "use strict";
 
-import { PathChange } from "./path_change.js";
-
-export function buildMerge({ wrap }) {
+export function buildMerge(types) {
   class MergeStream {
     constructor(streams) {
       this.streams = streams;
@@ -70,7 +68,7 @@ export function buildMerge({ wrap }) {
       if (c === null) {
         return { c, abort: false };
       }
-      if (!(c instanceof PathChange)) {
+      if (!(c instanceof types.PathChange)) {
         throw new Error("NYI"); // TODO: handle object completely changing
       }
       if (c.path.length === 0) {
@@ -79,7 +77,7 @@ export function buildMerge({ wrap }) {
       return this._filterKey(
         kk,
         c.path[0],
-        new PathChange(c.path.slice(1), c.change)
+        new types.PathChange(c.path.slice(1), c.change)
       );
     }
 
@@ -112,8 +110,8 @@ export function buildMerge({ wrap }) {
     }
   }
 
-  return function merge(objs) {
-    let wrapNonStream = x => (x.nextChange ? x : wrap(x));
+  types.merge = function merge(objs) {
+    let wrapNonStream = x => (x.nextChange ? x : types.wrap(x));
     return new MergeStream(objs.map(wrapNonStream));
   };
 }
