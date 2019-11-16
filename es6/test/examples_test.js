@@ -6,10 +6,8 @@ import { merge } from "../main.js";
 import http from "http";
 import fs from "fs";
 import fetch from "node-fetch";
-import { serve } from "../main.js";
-import { FileStore } from "../file/file.js";
-import { Cache } from "../local_storage/cache.js";
-import { urlTransport, sync } from "../main.js";
+import { serve, urlTransport, sync } from "../main.js";
+import { FileStore, Cache } from "../main.js";
 
 describe("examples from README.md", () => {
   it("does example 0", async () => {
@@ -108,10 +106,8 @@ describe("examples from README.md", () => {
     // import http from "http";
     // import fs from "fs";
     // import fetch from "node-fetch";
-    // import {serve} from "github.com/dotchain/streams/es6";
-    // import {FileStore} from "github.com/dotchain/streams/es6/file/file.js";
-    // import {Cache} from "github.com/dotchain/streams/es6/local_storage/cache.js";
-    // import {urlTransport, sync} from "github.com/dotchain/streams/es6";
+    // import {serve, urlTransport, sync} from "github.com/dotchain/streams/es6";
+    // import {FileStore, Cache} from "github.com/dotchain/streams/es6";
 
     let server = startServer();
     let { root, xport } = startClient();
@@ -133,7 +129,7 @@ describe("examples from README.md", () => {
     fs.unlinkSync("/tmp/ops.json");
 
     function startServer() {
-      let store = new FileStore("/tmp/ops.json");
+      let store = new FileStore("/tmp/ops.json", fs);
       let server = http.createServer((req, res) => serve(store, req, res));
       server.listen(8042);
       return server;
