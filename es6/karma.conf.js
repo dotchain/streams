@@ -9,10 +9,6 @@ function mungeFactory(logger) {
       .create("preprocessor.munge-es6-imports")
       .debug('Processing "%s".', file.originalPath);
     content = content.replace(
-      'import { expect } from "chai";',
-      "const {expect} = window.chai;"
-    );
-    content = content.replace(
       'import { dirname } from "path";',
       'const dirname = e => ".";'
     );
@@ -40,14 +36,13 @@ module.exports = function(config) {
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-    frameworks: ["mocha", "chai"],
+    frameworks: ["mocha"],
 
     // list of files / patterns to load in the browser
     files: modules,
 
     plugins: [
       "karma-chrome-launcher",
-      "karma-chai",
       "karma-mocha",
       "karma-mocha-reporter",
       { "preprocessor:munge-es6-imports": ["factory", mungeFactory] }

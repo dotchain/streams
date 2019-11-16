@@ -26,7 +26,7 @@ to make it dead simple to use.
 A stream can be created by wrapping any object:
 
 ```js
-// import {expect} from "chai";
+// import {expect} from "./expect.js";
 // import {wrap} from "github.com/dotchain/streams/es6";
 
 let s1 = wrap("hello");
@@ -36,7 +36,7 @@ expect(s1.valueOf()).to.equal("hello");
 For most practical purposes, the wrapped object works like the original object:
 
 ```js
-// import {expect} from "chai";
+// import {expect} from "./expect.js";
 // import {wrap} from "github.com/dotchain/streams/es6";
 
 let s1 = wrap("hello");
@@ -48,7 +48,7 @@ expect(s1 + " world").to.equal("hello world");
 The wrapping works transparently for hashes as well.
 
 ```js
-// import {expect} from "chai";
+// import {expect} from "./expect.js";
 // import {wrap} from "github.com/dotchain/streams/es6";
 
 let s1 = wrap({hello: {boo: "hoo"}});
@@ -60,7 +60,7 @@ expect(s1.hello.boo + "t").to.equal("hoot");
 In addition, wrapped objects support mutations methods, such as **replace**:
 
 ```js
-// import {expect} from "chai";
+// import {expect} from "./expect.js";
 // import {wrap} from "github.com/dotchain/streams/es6";
 
 let s1 = wrap("hello");
@@ -73,7 +73,7 @@ But all older versions of the object can obtain the latest value by
 calling **latest**:
 
 ```js
-// import {expect} from "chai";
+// import {expect} from "./expect.js";
 // import {wrap} from "github.com/dotchain/streams/es6";
 
 let s1 = wrap("hello");
@@ -86,7 +86,7 @@ expect("" + s1.latest()).to.equal("" + s2);
 Replace works on hashes too:
 
 ```js
-// import {expect} from "chai";
+// import {expect} from "./expect.js";
 // import {wrap} from "github.com/dotchain/streams/es6";
 
 let s1 = wrap({hello: {world: "hey"}})
@@ -99,7 +99,7 @@ A frequent operation for hashes is to replace a inner path but apply
 that on the current object. This is done with **replacePath**
 
 ```js
-// import {expect} from "chai";
+// import {expect} from "./expect.js";
 // import {wrap} from "github.com/dotchain/streams/es6";
 
 let s1 = wrap({hello: {world: "hey"}})
@@ -111,7 +111,7 @@ expect(s2.hello.world.valueOf()).to.equal("boo");
 This is also a convenient way to set an inner field if that path doesn't exist:
 
 ```js
-// import {expect} from "chai";
+// import {expect} from "./expect.js";
 // import {wrap} from "github.com/dotchain/streams/es6";
 
 let s1 = wrap({hello: "world"})
@@ -123,7 +123,7 @@ expect(s1.latest().boo.hoo.valueOf()).to.equal("hoo");
 Note that a field that does not exist can also be fetched using **get**:
 
 ```js
-// import {expect} from "chai";
+// import {expect} from "./expect.js";
 // import {wrap} from "github.com/dotchain/streams/es6";
 
 let s1 = wrap({hello: "world"})
@@ -141,7 +141,7 @@ Two separate object streams can be combined with `merge`:
 
 
 ```js
-// import {expect} from "chai";
+// import {expect} from "./expect.js";
 // import {wrap} from "github.com/dotchain/streams/es6";
 // import {merge} from "github.com/dotchain/streams/es6";
 
