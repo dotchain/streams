@@ -11,6 +11,8 @@ import { buildSync } from "./sync.js";
 import { buildTransport } from "./transport.js";
 import { buildWrap } from "./wrap.js";
 import { buildServer } from "./server.js";
+import { buildFileStore } from "./filestore_node.js";
+import { buildCache } from "./cache_browser.js";
 
 function build() {
   let types = {};
@@ -24,8 +26,10 @@ function build() {
   buildSync(types);
   buildTransport(types);
   buildWrap(types);
+  buildCache(types);
 
   buildServer(types);
+  buildFileStore(types);
   return types;
 }
 
@@ -39,6 +43,10 @@ const Replace = types.Replace;
 const PathChange = types.PathChange;
 const Transport = types.Transport;
 const MemStore = types.MemStore;
+const FileStore = types.FileStore;
+const Cache = types.Cache;
 
 export { wrap, sync, urlTransport, serve, merge };
 export { Replace, PathChange, Transport, MemStore };
+export { FileStore };
+export { Cache };

@@ -17,11 +17,7 @@ export function buildWrap(types) {
       return new types.Null(obj, stream);
     }
 
-    if (obj.withStream) {
-      return obj.withStream(stream);
-    }
-
-    if (obj.nextChange) {
+    if (obj.withStream || obj.nextChange) {
       return obj;
     }
 
