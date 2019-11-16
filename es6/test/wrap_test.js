@@ -2,7 +2,7 @@
 
 /* eslint-env mocha, browser */
 
-import { expect } from "chai";
+import { expect } from "./expect.js";
 import { wrap } from "../main.js";
 
 describe("wrap(basic types)", () => {

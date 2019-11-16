@@ -2,7 +2,7 @@
 
 /* eslint-env mocha, browser */
 
-import { expect } from "chai";
+import { expect } from "./expect.js";
 import { Cache } from "../main.js";
 import { sync, urlTransport, serve } from "../main.js";
 import { MemStore, Replace } from "../main.js";
