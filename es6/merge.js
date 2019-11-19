@@ -16,11 +16,11 @@ export function buildMerge(types) {
       });
     }
 
-    forEachKey(fn) {
+    forEachKey(_fn) {
       throw new Error("NYI");
     }
 
-    append(c, older) {
+    append(_c, _older) {
       throw new Error("NYI");
     }
 

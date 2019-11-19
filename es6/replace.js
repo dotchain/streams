@@ -8,11 +8,11 @@ export function buildReplace(types) {
       this.after = after;
     }
 
-    apply() {
+    apply(_v) {
       return this.after;
     }
 
-    merge(other, older) {
+    merge(other, _older) {
       return { self: this, other };
     }
   };

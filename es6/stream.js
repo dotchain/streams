@@ -21,7 +21,7 @@ export function buildStream(types) {
       this._nextChange = null;
     }
 
-    append(c, older) {
+    append(c, _older) {
       this._nextChange = c;
       this._next = new Stream();
       return this._next;
