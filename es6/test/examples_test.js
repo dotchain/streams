@@ -4,6 +4,7 @@ import { expect } from "./expect.js";
 import { wrap } from "../main.js";
 import { merge } from "../main.js";
 import { object } from "../main.js";
+import { watch } from "../main.js";
 import http from "http";
 import fs from "fs";
 import fetch from "node-fetch";
@@ -120,6 +121,35 @@ describe("examples from README.md", () => {
     expect(JSON.stringify(name.latest())).to.equal(JSON.stringify(expected));
   });
   it("does example 11", async () => {
+    // import {expect} from "./expect.js";
+    // import {wrap} from "github.com/dotchain/streams/es6";
+    // import {watch} from "github.com/dotchain/streams/es6";
+
+    let name = wrap({ first: "joe", last: "schmoe" });
+    let fullName = watch(name, name => name.first + " " + name.last);
+    expect(fullName.valueOf()).to.equal("joe schmoe");
+
+    name.first.replace("John");
+    name.latest().last.replace("Doe");
+    expect(fullName.latest().valueOf()).to.equal("John Doe");
+  });
+  it("does example 12", async () => {
+    // import {expect} from "./expect.js";
+    // import {wrap} from "github.com/dotchain/streams/es6";
+    // import {watch} from "github.com/dotchain/streams/es6";
+
+    let mappings = wrap({ Richard: "Dick", Charles: "Chuck" });
+    let name = wrap({ first: "Richard", last: "Feynman" });
+    let nick = watch(name, name => mappings[name.first.valueOf()]);
+
+    expect(nick.valueOf()).to.equal("Dick");
+    mappings.Richard.replace("Rick");
+    expect(nick.latest().valueOf()).to.equal("Rick");
+
+    name.first.replace("Charles");
+    expect(nick.latest().valueOf()).to.equal("Chuck");
+  });
+  it("does example 13", async () => {
     // import http from "http";
     // import fs from "fs";
     // import fetch from "node-fetch";
