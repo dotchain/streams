@@ -1,18 +1,22 @@
 {
-    "extends": "eslint:recommended",
-    "parserOptions": {
-        "ecmaVersion": 8,
-        "sourceType": "module"
-    },
-    "globals": {
-        "setTimeout": true,
-        "clearTimeout": true,
-        "console": true,
-        "Uint32Array": true,
-        "Uint8Array": true,
-        "ArrayBuffer": true,
-        "Map": true,
-        "require": true,
-        "__filename": true
-    }
+  "extends": "eslint:recommended",
+  "parserOptions": {
+    "ecmaVersion": 8,
+    "sourceType": "module"
+  },
+  "rules": {
+    "no-unused-vars": ["error", {"argsIgnorePattern": "^_"}]
+  },
+  "globals": {
+    "setTimeout": true,
+    "clearTimeout": true,
+    "console": true,
+    "Uint32Array": true,
+    "Uint8Array": true,
+    "ArrayBuffer": true,
+    "Map": true,
+    "require": true,
+    "__filename": true
+  }
 }
+  

@@ -23,7 +23,7 @@ export function buildPathChange(types) {
       return result;
     }
 
-    merge(other, older) {
+    merge(other, _older) {
       return { self: this, other };
     }
   };

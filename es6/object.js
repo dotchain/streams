@@ -29,11 +29,11 @@ export function buildObject(types) {
       throw new Error("NYI");
     }
 
-    replacePath(path, value) {
+    replacePath(_path, _value) {
       throw new Error("NYI");
     }
 
-    apply(c, older) {
+    apply(_c, _older) {
       throw new Error("NYI");
     }
 
