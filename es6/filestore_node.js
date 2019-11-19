@@ -1,6 +1,6 @@
 "use strict";
 
-export function buildFileStore(types, imports) {
+export function buildFileStore(types) {
   // FileStore is a file-based store
   types.FileStore = class FileStore {
     constructor(filepath, fs) {

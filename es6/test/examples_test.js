@@ -3,6 +3,7 @@
 import { expect } from "./expect.js";
 import { wrap } from "../main.js";
 import { merge } from "../main.js";
+import { object } from "../main.js";
 import http from "http";
 import fs from "fs";
 import fetch from "node-fetch";
@@ -103,6 +104,22 @@ describe("examples from README.md", () => {
     expect(s3.latest().hello.valueOf()).to.equal("world");
   });
   it("does example 10", async () => {
+    // import {expect} from "./expect.js";
+    // import {wrap} from "github.com/dotchain/streams/es6";
+    // import {object} from "github.com/dotchain/streams/es6";
+
+    let name1 = wrap("Joe");
+    let name2 = wrap("Shmoe");
+    let name = object({ first: name1, last: name2 });
+    name1.replace("John");
+    name2.replace("Doe");
+    expect(name.latest().first.valueOf()).to.equal("John");
+    expect(name.latest().last.valueOf()).to.equal("Doe");
+
+    const expected = { first: "John", last: "Doe" };
+    expect(JSON.stringify(name.latest())).to.equal(JSON.stringify(expected));
+  });
+  it("does example 11", async () => {
     // import http from "http";
     // import fs from "fs";
     // import fetch from "node-fetch";

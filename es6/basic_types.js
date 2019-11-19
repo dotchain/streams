@@ -99,8 +99,7 @@ export function buildBasicTypes(types) {
   types.Dict = class Dict extends StreamBase {
     constructor(obj, stream) {
       super(obj, stream);
-      let getter = key => () =>
-        types.wrap(obj[key], new types.ChildStream(stream, key));
+      let getter = key => () => this.get(key);
       for (let key in obj) {
         if (obj.hasOwnProperty(key)) {
           Object.defineProperty(this, key, { get: getter(key) });
@@ -121,8 +120,8 @@ export function buildBasicTypes(types) {
     forEachKey(fn) {
       let obj = this.toJSON();
       for (let key in obj) {
-        if (obj.hasOwnProperty(key)) {
-          fn(key);
+        if (obj.hasOwnProperty(key) && fn(key)) {
+          return;
         }
       }
     }

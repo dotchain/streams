@@ -15,8 +15,9 @@ to make it dead simple to use.
     3. [Mutations](#mutations)
     4. [Modifying hashes](#modifying-hashes)
     5. [Merge](#merge)
-    6. [Network synchronization](#network-synchronization)
-    7. [Other basic types](#other-basic-types)
+    6. [Object](#object)
+    7. [Network synchronization](#network-synchronization)
+    8. [Other basic types](#other-basic-types)
 2. [Roadmap](#roadmap)
 
 ## Documentation
@@ -153,6 +154,27 @@ s2.boo.replace("hoot");
 
 expect(s3.latest().boo.valueOf()).to.equal("hoot");
 expect(s3.latest().hello.valueOf()).to.equal("world");
+```
+
+### Object
+
+A set of streams can be used to create an object stream using `object`:
+
+```js
+// import {expect} from "./expect.js";
+// import {wrap} from "github.com/dotchain/streams/es6";
+// import {object} from "github.com/dotchain/streams/es6";
+
+let name1 = wrap("Joe");
+let name2 = wrap("Shmoe");
+let name = object({first: name1, last: name2});
+name1.replace("John");
+name2.replace("Doe");
+expect(name.latest().first.valueOf()).to.equal("John");
+expect(name.latest().last.valueOf()).to.equal("Doe");
+
+const expected = {first: "John", last: "Doe"};
+expect(JSON.stringify(name.latest())).to.equal(JSON.stringify(expected));
 ```
 
 ### Network synchronization
