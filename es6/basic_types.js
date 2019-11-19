@@ -16,8 +16,7 @@ export function buildBasicTypes(types) {
     }
 
     replace(v) {
-      let unwrapped = v ? v.valueOf() : v;
-      return this.apply(new types.Replace(this._value, unwrapped));
+      return this.apply(new types.Replace(this, v));
     }
 
     replacePath(path, value) {

@@ -14,10 +14,12 @@ to make it dead simple to use.
     2. [Wrapping hashes](#wrapping-hashes)
     3. [Mutations](#mutations)
     4. [Modifying hashes](#modifying-hashes)
-    5. [Merge](#merge)
-    6. [Object](#object)
-    7. [Network synchronization](#network-synchronization)
-    8. [Other basic types](#other-basic-types)
+    5. [Stream composition](#stream-composition)
+        1. [Merge](#merge)
+        2. [Object](#object)
+        3. [Watch](#watch)
+    6. [Network synchronization](#network-synchronization)
+    7. [Other basic types](#other-basic-types)
 2. [Roadmap](#roadmap)
 
 ## Documentation
@@ -136,7 +138,13 @@ expect(s1.latest().boo.hoo.valueOf()).to.equal("hoot");
 expect(inner.latest().valueOf()).to.equal("hoot");
 ```
 
-### Merge
+### Stream composition
+
+Streams can be combined to create more streams using the `merge`,
+`object` and `watch` functions as well as the collection functions
+like `map` and `filter`.
+
+#### Merge
 
 Two separate object streams can be combined with `merge`:
 
@@ -156,7 +164,7 @@ expect(s3.latest().boo.valueOf()).to.equal("hoot");
 expect(s3.latest().hello.valueOf()).to.equal("world");
 ```
 
-### Object
+#### Object
 
 A set of streams can be used to create an object stream using `object`:
 
@@ -176,6 +184,48 @@ expect(name.latest().last.valueOf()).to.equal("Doe");
 const expected = {first: "John", last: "Doe"};
 expect(JSON.stringify(name.latest())).to.equal(JSON.stringify(expected));
 ```
+
+#### Watch
+
+The `watch` function can be used to apply a specific function to every
+instance.  It acts a bit like `map` acts on collections:
+
+
+```js
+// import {expect} from "./expect.js";
+// import {wrap} from "github.com/dotchain/streams/es6";
+// import {watch} from "github.com/dotchain/streams/es6";
+
+let name = wrap({first: "joe", last: "schmoe"});
+let fullName = watch(name, name => name.first + " " + name.last);
+expect(fullName.valueOf()).to.equal("joe schmoe");
+
+name.first.replace("John");
+name.latest().last.replace("Doe");
+expect(fullName.latest().valueOf()).to.equal("John Doe");
+```
+
+The function passed to `watch` can produce a stream. This is useful
+when joining two collections:
+
+
+```js
+// import {expect} from "./expect.js";
+// import {wrap} from "github.com/dotchain/streams/es6";
+// import {watch} from "github.com/dotchain/streams/es6";
+
+let mappings = wrap({Richard: "Dick", Charles: "Chuck"})
+let name = wrap({first: "Richard", last: "Feynman"})
+let nick = watch(name, name => mappings[name.first.valueOf()]);
+
+expect(nick.valueOf()).to.equal("Dick");
+mappings.Richard.replace("Rick");
+expect(nick.latest().valueOf()).to.equal("Rick");
+
+name.first.replace("Charles");
+expect(nick.latest().valueOf()).to.equal("Chuck");
+```
+
 
 ### Network synchronization
 
@@ -263,12 +313,20 @@ readable ISO string.  `Unwrap` returns this value too (though
     - ~streams.wrap support~
     - ~PathChange change type~
     - ~fields accessible using dot notation~
-7. Collections
-    - map, filter, dict, ~merge~
-6. Collaboration
+6. Collections
+    - map, filter
+7. Composition
+    - ~watch, object, merge~
+8. Collaboration
     - merge support in change types
     - merge support in stream base class
     - merge support in streams.sync()
-7. Branch merge support
-8. Server DB support
+9. Branch merge support
+10. Server DB support
+11. Mutable collections support
+    - map
+    - filter
+12. Mutable composition support
+    - object
+    - merge
 

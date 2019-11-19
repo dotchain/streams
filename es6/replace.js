@@ -9,7 +9,7 @@ export function buildReplace(types) {
     }
 
     apply(_v) {
-      return this.after;
+      return this.after && this.after.toJSON ? this.after.toJSON() : this.after;
     }
 
     merge(other, _older) {
