@@ -1,6 +1,11 @@
 "use strict";
 
 export function buildStream(types) {
+  const merge = (self, other, older) => {
+    if (self === null || other === null) return { self, other };
+    return self.merge(other, older);
+  };
+
   // Stream implements a change stream.
   //
   // A stream effectively holds a reference to the next version (and
@@ -21,10 +26,21 @@ export function buildStream(types) {
       this._nextChange = null;
     }
 
-    append(c, _older) {
-      this._nextChange = c;
-      this._next = new Stream();
-      return this._next;
+    append(c, older) {
+      const result = new Stream();
+      let tail = this;
+      let next = result;
+      let tailnext = tail.next();
+      while (tailnext !== null) {
+        tail = tailnext;
+        const merged = merge(tail.nextChange(), c, older);
+        next = next.append(merged.self, older);
+        c = merged.other;
+        tailnext = tail.next();
+      }
+      tail._nextChange = c;
+      tail._next = next;
+      return result;
     }
 
     next() {

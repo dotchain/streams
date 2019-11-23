@@ -12,8 +12,20 @@ export function buildReplace(types) {
       return this.after && this.after.toJSON ? this.after.toJSON() : this.after;
     }
 
-    merge(other, _older) {
-      return { self: this, other };
+    merge(other, older) {
+      let self = this;
+
+      if (other) {
+        if (older) {
+          self = new Replace(other.after, this.after);
+          other = null;
+        } else {
+          other = new Replace(self.after, other.after);
+          self = null;
+        }
+      }
+
+      return { self, other };
     }
 
     visit(pathPrefix, visitor) {
