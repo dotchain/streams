@@ -20,8 +20,21 @@ export function buildMerge(types) {
       throw new Error("NYI");
     }
 
-    append(_c, _older) {
-      throw new Error("NYI");
+    append(c, _older) {
+      let streams = this.streams;
+      if (c) {
+        c.visit([], {
+          replace: (path, cx) => {
+            const rest = path.slice(1);
+            const cxx = new types.PathChange(rest, cx);
+            this[path[0]].append(new types.PathChange(rest, cxx));
+          }
+        });
+      }
+      if (streams != this.streams) {
+        return new MergeStream(streams);
+      }
+      return this;
     }
 
     exists(key) {
@@ -55,7 +68,8 @@ export function buildMerge(types) {
       for (let kk = 0; kk < this.streams.length; kk++) {
         let stream = this.streams[kk];
         let { c, abort } = this._filter(kk, stream.nextChange());
-        if (c || abort) return c;
+        if (abort) this.streams[kk] = new types.FakeStream({ next: null });
+        if (c) return c;
         let next = stream.next();
         if (next) {
           this.streams[kk] = next;
@@ -68,17 +82,20 @@ export function buildMerge(types) {
       if (c === null) {
         return { c, abort: false };
       }
-      if (!(c instanceof types.PathChange)) {
-        throw new Error("NYI"); // TODO: handle object completely changing
-      }
-      if (c.path.length === 0) {
-        return this._filter(kk, c.change);
-      }
-      return this._filterKey(
-        kk,
-        c.path[0],
-        new types.PathChange(c.path.slice(1), c.change)
-      );
+      let builder = new types.ChangeBuilder();
+      let abort = false;
+      c.visit([], {
+        replace: (path, cx) => {
+          if (abort) return;
+          const rest =
+            path.length > 1 ? new types.PathChange(path.slice(1), cx) : cx;
+          let result = this._filterKey(kk, path[0], rest);
+          abort = abort || result.abort;
+          builder.replace([path[0]], result.c);
+        }
+      });
+
+      return { c: abort ? null : builder.result(), abort };
     }
 
     _filterKey(kk, key, c) {

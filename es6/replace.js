@@ -15,5 +15,9 @@ export function buildReplace(types) {
     merge(other, _older) {
       return { self: this, other };
     }
+
+    visit(pathPrefix, visitor) {
+      visitor.replace(pathPrefix, this);
+    }
   };
 }
