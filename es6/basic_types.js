@@ -16,7 +16,7 @@ export function buildBasicTypes(types) {
     }
 
     replace(v) {
-      return this.apply(new types.Replace(this, v));
+      return this.apply(new types.Replace(this, v), false);
     }
 
     replacePath(path, value) {

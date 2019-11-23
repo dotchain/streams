@@ -63,7 +63,7 @@ describe("e2e piped", () => {
     expect(store.ops.length).to.equal(2);
 
     await xport.pull();
-    expect(root.latest() + "").to.equal("hello"); // should be "world"
+    expect(root.latest() + "").to.equal("world");
   });
 });
 
