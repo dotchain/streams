@@ -93,6 +93,35 @@ describe("examples from README.md", () => {
   it("does example 9", async () => {
     // import {expect} from "./expect.js";
     // import {wrap} from "github.com/dotchain/streams/es6";
+
+    let s = wrap({ hello: "world", boo: "hoo" });
+
+    // edit hello and boo separately on top of s
+    s.hello.replace("World");
+    s.boo.replace("Hoo");
+
+    // now s.latest() would have the updated values of both
+    s = s.latest();
+    expect(s.hello.valueOf()).to.equal("World");
+    expect(s.boo.valueOf()).to.equal("Hoo");
+  });
+  it("does example 10", async () => {
+    // import {expect} from "./expect.js";
+    // import {wrap} from "github.com/dotchain/streams/es6";
+
+    let s = wrap({});
+
+    // edit hello and boo separately on top of s
+    s.get("hello").replace("World");
+    s.get("hello").replace("Goodbye");
+
+    // now s.latest() would have the updated values of both
+    s = s.latest();
+    expect(s.hello.valueOf()).to.equal("Goodbye");
+  });
+  it("does example 11", async () => {
+    // import {expect} from "./expect.js";
+    // import {wrap} from "github.com/dotchain/streams/es6";
     // import {merge} from "github.com/dotchain/streams/es6";
 
     let s1 = wrap({ hello: "world" });
@@ -104,7 +133,7 @@ describe("examples from README.md", () => {
     expect(s3.latest().boo.valueOf()).to.equal("hoot");
     expect(s3.latest().hello.valueOf()).to.equal("world");
   });
-  it("does example 10", async () => {
+  it("does example 12", async () => {
     // import {expect} from "./expect.js";
     // import {wrap} from "github.com/dotchain/streams/es6";
     // import {object} from "github.com/dotchain/streams/es6";
@@ -120,7 +149,7 @@ describe("examples from README.md", () => {
     const expected = { first: "John", last: "Doe" };
     expect(JSON.stringify(name.latest())).to.equal(JSON.stringify(expected));
   });
-  it("does example 11", async () => {
+  it("does example 13", async () => {
     // import {expect} from "./expect.js";
     // import {wrap} from "github.com/dotchain/streams/es6";
     // import {watch} from "github.com/dotchain/streams/es6";
@@ -133,7 +162,7 @@ describe("examples from README.md", () => {
     name.latest().last.replace("Doe");
     expect(fullName.latest().valueOf()).to.equal("John Doe");
   });
-  it("does example 12", async () => {
+  it("does example 14", async () => {
     // import {expect} from "./expect.js";
     // import {wrap} from "github.com/dotchain/streams/es6";
     // import {watch} from "github.com/dotchain/streams/es6";
@@ -149,7 +178,7 @@ describe("examples from README.md", () => {
     name.first.replace("Charles");
     expect(nick.latest().valueOf()).to.equal("Chuck");
   });
-  it("does example 13", async () => {
+  it("does example 15", async () => {
     // import http from "http";
     // import fs from "fs";
     // import fetch from "node-fetch";
