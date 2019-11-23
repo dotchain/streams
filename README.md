@@ -14,12 +14,13 @@ to make it dead simple to use.
     2. [Wrapping hashes](#wrapping-hashes)
     3. [Mutations](#mutations)
     4. [Modifying hashes](#modifying-hashes)
-    5. [Stream composition](#stream-composition)
+    5. [Mutations converge](#mutations-converge)
+    6. [Stream composition](#stream-composition)
         1. [Merge](#merge)
         2. [Object](#object)
         3. [Watch](#watch)
-    6. [Network synchronization](#network-synchronization)
-    7. [Other basic types](#other-basic-types)
+    7. [Network synchronization](#network-synchronization)
+    8. [Other basic types](#other-basic-types)
 2. [Roadmap](#roadmap)
 
 ## Documentation
@@ -45,6 +46,10 @@ For most practical purposes, the wrapped object works like the original object:
 let s1 = wrap("hello");
 expect(s1 + " world").to.equal("hello world");
 ```
+
+NOTE: Most applications need [network
+synchronized](#network-synchronization) streams and do not typically
+create *adhoc* streams.
 
 ### Wrapping hashes
 
@@ -137,6 +142,47 @@ s1.get("boo").get("hoo").replace("hoot");
 expect(s1.latest().boo.hoo.valueOf()).to.equal("hoot");
 expect(inner.latest().valueOf()).to.equal("hoot");
 ```
+
+### Mutations converge
+
+Mutations automatically converge on a stream.  Note that using a
+stream that is [synchronized](#network-synchronization) would mean
+that this convergence happens across network clients: i.e. all clients
+with this state automatically converge.
+
+```js
+// import {expect} from "./expect.js";
+// import {wrap} from "github.com/dotchain/streams/es6";
+
+let s = wrap({hello: "world", boo: "hoo"});
+
+// edit hello and boo separately on top of s
+s.hello.replace("World");
+s.boo.replace("Hoo");
+
+// now s.latest() would have the updated values of both
+s = s.latest();
+expect(s.hello.valueOf()).to.equal("World");
+expect(s.boo.valueOf()).to.equal("Hoo");
+```
+
+When multiple mutations conflict, the **last writer** generally wins.
+
+```js
+// import {expect} from "./expect.js";
+// import {wrap} from "github.com/dotchain/streams/es6";
+
+let s = wrap({});
+
+// edit hello and boo separately on top of s
+s.get("hello").replace("World");
+s.get("hello").replace("Goodbye");
+
+// now s.latest() would have the updated values of both
+s = s.latest();
+expect(s.hello.valueOf()).to.equal("Goodbye");
+```
+
 
 ### Stream composition
 
@@ -317,10 +363,11 @@ readable ISO string.  `Unwrap` returns this value too (though
     - map, filter
 7. Composition
     - ~watch, object, merge~
-8. Collaboration
-    - merge support in change types
-    - merge support in stream base class
-    - merge support in streams.sync()
+8. ~Collaboration~
+    - ~merge support in change types~
+    - ~merge support in stream base class~
+    - ~merge support in streams.sync()~
+    - add merge tests
 9. Branch merge support
 10. Server DB support
 11. Mutable collections support
