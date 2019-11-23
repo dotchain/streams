@@ -15,16 +15,24 @@ export function buildPathChange(types) {
 
       let rest = new PathChange(this.path.slice(1), this.change);
       let result = {};
+      to = to || {};
       for (let key in to) {
         if (!to.hasOwnProperty(key) || key == this.path[0]) continue;
         result[key] = to[key];
       }
-      result[this.path[0]] = rest.apply(to[this.path[0]] || {});
+      result[this.path[0]] = rest.apply(to[this.path[0]]);
       return result;
     }
 
     merge(other, _older) {
       return { self: this, other };
+    }
+
+    visit(pathPrefix, visitor) {
+      if (this.change) {
+        // TODO: use fake objects instead of arrays for perf
+        this.change.visit(pathPrefix.concat(this.path), visitor);
+      }
     }
   };
 }
