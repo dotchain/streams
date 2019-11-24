@@ -33,7 +33,7 @@ describe("examples from README.md", () => {
     let s1 = wrap({ hello: { boo: "hoo" } });
     expect(s1.hello.boo + "t").to.equal("hoot");
   });
-  it("does mutations", async () => {
+  it("does replace", async () => {
     // import {expect} from "./expect.js";
     // import {wrap} from "github.com/dotchain/streams/es6";
 
@@ -41,7 +41,7 @@ describe("examples from README.md", () => {
     let s2 = s1.replace("world");
     expect("hello " + s2).to.equal("hello world");
   });
-  it("does mutations #1", async () => {
+  it("does latest", async () => {
     // import {expect} from "./expect.js";
     // import {wrap} from "github.com/dotchain/streams/es6";
 
@@ -49,7 +49,7 @@ describe("examples from README.md", () => {
     let s2 = s1.replace("world");
     expect("" + s1.latest()).to.equal("" + s2);
   });
-  it("does modifying hashes", async () => {
+  it("does modifying properties/fields", async () => {
     // import {expect} from "./expect.js";
     // import {wrap} from "github.com/dotchain/streams/es6";
 
@@ -58,7 +58,7 @@ describe("examples from README.md", () => {
     expect(s2.valueOf()).to.equal("world");
     expect(s1.latest().hello.world.valueOf()).to.equal("world");
   });
-  it("does modifying hashes #1", async () => {
+  it("does modifying with replacepath", async () => {
     // import {expect} from "./expect.js";
     // import {wrap} from "github.com/dotchain/streams/es6";
 
@@ -67,7 +67,7 @@ describe("examples from README.md", () => {
     expect(s1.latest().hello.world.valueOf()).to.equal("boo");
     expect(s2.hello.world.valueOf()).to.equal("boo");
   });
-  it("does modifying hashes #2", async () => {
+  it("does adding fields with replacepath", async () => {
     // import {expect} from "./expect.js";
     // import {wrap} from "github.com/dotchain/streams/es6";
 
@@ -76,7 +76,7 @@ describe("examples from README.md", () => {
     expect(s2.boo.hoo.valueOf()).to.equal("hoo");
     expect(s1.latest().boo.hoo.valueOf()).to.equal("hoo");
   });
-  it("does modifying hashes #3", async () => {
+  it("does adding fields with .get", async () => {
     // import {expect} from "./expect.js";
     // import {wrap} from "github.com/dotchain/streams/es6";
 
@@ -89,6 +89,17 @@ describe("examples from README.md", () => {
       .replace("hoot");
     expect(s1.latest().boo.hoo.valueOf()).to.equal("hoot");
     expect(inner.latest().valueOf()).to.equal("hoot");
+  });
+  it("does deleting fields", async () => {
+    // import {expect} from "./expect.js";
+    // import {wrap} from "github.com/dotchain/streams/es6";
+
+    let s1 = wrap({ hello: "world" });
+    s1.hello.replace(null);
+
+    expect(s1.exists("hello")).to.equal(true);
+    expect(s1.latest().exists("hello")).to.equal(false);
+    expect(JSON.stringify(s1.latest())).to.equal("{}");
   });
   it("does mutations converge", async () => {
     // import {expect} from "./expect.js";
@@ -105,7 +116,7 @@ describe("examples from README.md", () => {
     expect(s.hello.valueOf()).to.equal("World");
     expect(s.boo.valueOf()).to.equal("Hoo");
   });
-  it("does mutations converge #1", async () => {
+  it("does last writer wins", async () => {
     // import {expect} from "./expect.js";
     // import {wrap} from "github.com/dotchain/streams/es6";
 
@@ -119,7 +130,7 @@ describe("examples from README.md", () => {
     s = s.latest();
     expect(s.hello.valueOf()).to.equal("Goodbye");
   });
-  it("does merge", async () => {
+  it("does merging two objects", async () => {
     // import {expect} from "./expect.js";
     // import {wrap} from "github.com/dotchain/streams/es6";
     // import {merge} from "github.com/dotchain/streams/es6";
@@ -170,7 +181,36 @@ describe("examples from README.md", () => {
 
     expect(s2.latest()["la la"].valueOf()).to.equal("la di da");
   });
-  it("does object", async () => {
+  it("does deleting keys from a merged stream", async () => {
+    // import {expect} from "./expect.js";
+    // import {wrap} from "github.com/dotchain/streams/es6";
+    // import {merge} from "github.com/dotchain/streams/es6";
+
+    let s1 = wrap({ hello: "world" });
+    let s2 = wrap({ boo: "hoo" });
+    let s3 = merge([s1, s2]);
+
+    s3.hello.replace(null);
+    expect(JSON.stringify(s1.latest())).to.equal("{}");
+
+    s3 = s3.latest();
+    expect(JSON.stringify(s3)).to.equal('{"boo":"hoo"}');
+  });
+  it("does delete resurfaces old keys", async () => {
+    // import {expect} from "./expect.js";
+    // import {wrap} from "github.com/dotchain/streams/es6";
+    // import {merge} from "github.com/dotchain/streams/es6";
+
+    let s1 = wrap({ hello: "world", ok: "computer" });
+    let s2 = wrap({ boo: "hoo", ok: "not a computer" });
+    let s3 = merge([s1, s2]);
+
+    expect(s3.ok.valueOf()).to.equal("not a computer");
+    s3.ok.replace(null);
+    s3 = s3.latest();
+    expect(s3.ok.valueOf()).to.equal("computer");
+  });
+  it("does uinsg object() for static shapes", async () => {
     // import {expect} from "./expect.js";
     // import {wrap} from "github.com/dotchain/streams/es6";
     // import {object} from "github.com/dotchain/streams/es6";

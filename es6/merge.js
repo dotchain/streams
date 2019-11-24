@@ -165,10 +165,21 @@ export function buildMerge(types) {
         return { c, abort };
       }
 
+      if (!existed && !willExist) {
+        return { c: null, abort};
+      }
+      
       const idx = this._findStreamIndex(this.streams.slice(0, kk), key);
       if (idx != -1) {
-        // TODO: need to modify c so that its before or after = old value
-        throw new Error("NYI");
+        const prior = this.streams[idx].get(key).toJSON();
+        if (!existed) {
+          const m = (new types.Replace(null, prior)).merge(c, false);
+          c = m.other;
+        } else {
+          const before = this.streams[kk].get(key).toJSON();
+          const m = new types.Replace(before, prior).merge(c, true);
+          c = m.self;
+        }
       }
       return { c, abort };
     }
