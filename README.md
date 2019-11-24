@@ -21,6 +21,7 @@ to make it dead simple to use.
             2. [Modifying existing keys in merged streams](#modifying-existing-keys-in-merged-streams)
             3. [Adding new keys in merged streams](#adding-new-keys-in-merged-streams)
         2. [Object](#object)
+            1. [Modifying existing keys in an object() stream](#modifying-existing-keys-in-an-object-stream)
         3. [Watch](#watch)
     7. [Network synchronization](#network-synchronization)
     8. [Other basic types](#other-basic-types)
@@ -289,6 +290,25 @@ const expected = {first: "John", last: "Doe"};
 expect(JSON.stringify(name.latest())).to.equal(JSON.stringify(expected));
 ```
 
+##### Modifying existing keys in an object() stream
+
+Modifying a key (or some path) correctly transfers those mutations to
+the underlying streams.  
+
+```js
+// import {expect} from "./expect.js";
+// import {wrap} from "github.com/dotchain/streams/es6";
+// import {object} from "github.com/dotchain/streams/es6";
+
+let s1 = wrap("world");
+let s2 = object({hello: s1});
+s2.hello.replace("goodbye");
+
+expect(s1.latest().valueOf()).to.equal("goodbye");
+expect(s2.latest().hello.valueOf()).to.equal("goodbye");
+
+```
+
 #### Watch
 
 The `watch` function can be used to apply a specific function to every
@@ -432,6 +452,6 @@ readable ISO string.  `Unwrap` returns this value too (though
     - map
     - filter
 12. Mutable composition support
-    - object
+    - ~object~
     - ~merge~
 

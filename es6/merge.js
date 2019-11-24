@@ -17,9 +17,31 @@ export function buildMerge(types) {
       });
     }
 
+    replace(v) {
+      return this.apply(new types.Replace(this, v), false);
+    }
+
+    replacePath(path, value) {
+      let before = this.toJSON();
+      for (let key of path) {
+        if (before && before.hasOwnProperty(key)) {
+          before = before[key];
+        } else {
+          before = null;
+        }
+      }
+      return this.apply(
+        new types.PathChange(path, new types.Replace(before, value))
+      );
+    }
+
+    apply(c) {
+      return this.append(c, false);
+    }
+
     forEachKey(fn) {
       const seen = {};
-      for (let kk = this.streams.length - 1; kk >= 0; kk --) {
+      for (let kk = this.streams.length - 1; kk >= 0; kk--) {
         const result = this.streams[kk].forEachKey(key => {
           if (seen[key]) return;
           seen[key] = true;
@@ -41,16 +63,16 @@ export function buildMerge(types) {
     toJSON() {
       return this.valueOf();
     }
-    
+
     append(c, older) {
-      if (c === null) return  this;
-      
+      if (c === null) return this;
+
       let streams = null;
       c.visit([], {
         replace: (path, cx) => {
           let idx = this._findStreamIndex(streams || this.streams, path[0]);
           if (idx == -1) idx = this.streams.length - 1;
-          
+
           streams = streams || this.streams.slice();
           cx = new types.PathChange(path, cx);
           streams[idx] = streams[idx].apply(cx, older);
