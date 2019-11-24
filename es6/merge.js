@@ -21,19 +21,19 @@ export function buildMerge(types) {
     }
 
     append(c, older) {
+      if (c === null) return  this;
+      
       let streams = null;
-      if (c) {
-        c.visit([], {
-          replace: (path, cx) => {
-            let idx = this._findStreamIndex(streams || this.streams, path[0]);
-            if (idx == -1) idx = this.streams.length - 1;
-
-            streams = streams || this.streams.slice();
-            cx = new types.PathChange(path, cx);
-            streams[idx] = streams[idx].apply(cx, older);
-          }
-        });
-      }
+      c.visit([], {
+        replace: (path, cx) => {
+          let idx = this._findStreamIndex(streams || this.streams, path[0]);
+          if (idx == -1) idx = this.streams.length - 1;
+          
+          streams = streams || this.streams.slice();
+          cx = new types.PathChange(path, cx);
+          streams[idx] = streams[idx].apply(cx, older);
+        }
+      });
       return streams ? new MergeStream(streams) : this;
     }
 
