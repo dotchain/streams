@@ -17,8 +17,9 @@ to make it dead simple to use.
     5. [Mutations converge](#mutations-converge)
     6. [Stream composition](#stream-composition)
         1. [Merge](#merge)
-            1. [Modifying existing keys in merged streams](#modifying-existing-keys-in-merged-streams)
-            2. [Adding new keys in merged streams](#adding-new-keys-in-merged-streams)
+            1. [Merging with duplicate keys](#merging-with-duplicate-keys)
+            2. [Modifying existing keys in merged streams](#modifying-existing-keys-in-merged-streams)
+            3. [Adding new keys in merged streams](#adding-new-keys-in-merged-streams)
         2. [Object](#object)
         3. [Watch](#watch)
     7. [Network synchronization](#network-synchronization)
@@ -210,6 +211,22 @@ s2.boo.replace("hoot");
 
 expect(s3.latest().boo.valueOf()).to.equal("hoot");
 expect(s3.latest().hello.valueOf()).to.equal("world");
+```
+
+##### Merging with duplicate keys
+
+When the same key is present in multiple streams, the last one wins:
+
+```js
+// import {expect} from "./expect.js";
+// import {wrap} from "github.com/dotchain/streams/es6";
+// import {merge} from "github.com/dotchain/streams/es6";
+
+let s1 = wrap({hello: "world", ok: "computer"});
+let s2 = wrap({hello: "goodbye", boo: "hoo"});
+let s3 = merge([s1, s2]);
+
+expect(s3.hello.valueOf()).to.equal("goodbye");
 ```
 
 ##### Modifying existing keys in merged streams
@@ -416,5 +433,5 @@ readable ISO string.  `Unwrap` returns this value too (though
     - filter
 12. Mutable composition support
     - object
-    - ~ merge ~
+    - ~merge~
 

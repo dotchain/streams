@@ -4,6 +4,7 @@ export function buildMerge(types) {
   class MergeStream {
     constructor(streams) {
       this.streams = streams;
+      this._value = null;
       for (let stream of streams) {
         stream.forEachKey && this._setupStream(stream);
       }
@@ -12,28 +13,49 @@ export function buildMerge(types) {
     _setupStream(stream) {
       stream.forEachKey(key => {
         let get = () => stream[key];
-        Object.defineProperty(this, key, { get });
+        Object.defineProperty(this, key, { configurable: true, get });
       });
     }
 
-    forEachKey(_fn) {
-      throw new Error("NYI");
+    forEachKey(fn) {
+      const seen = {};
+      for (let kk = this.streams.length - 1; kk >= 0; kk --) {
+        const result = this.streams[kk].forEachKey(key => {
+          if (seen[key]) return;
+          seen[key] = true;
+          return fn(key);
+        });
+        if (result) return result;
+      }
     }
 
-    append(c, older) {
-      let streams = null;
-      if (c) {
-        c.visit([], {
-          replace: (path, cx) => {
-            let idx = this._findStreamIndex(streams || this.streams, path[0]);
-            if (idx == -1) idx = this.streams.length - 1;
+    valueOf() {
+      if (this._value !== null) return this._value;
+      this._value = {};
+      this.forEachKey(key => {
+        this._value[key] = this[key];
+      });
+      return this._value;
+    }
 
-            streams = streams || this.streams.slice();
-            cx = new types.PathChange(path, cx);
-            streams[idx] = streams[idx].apply(cx, older);
-          }
-        });
-      }
+    toJSON() {
+      return this.valueOf();
+    }
+    
+    append(c, older) {
+      if (c === null) return  this;
+      
+      let streams = null;
+      c.visit([], {
+        replace: (path, cx) => {
+          let idx = this._findStreamIndex(streams || this.streams, path[0]);
+          if (idx == -1) idx = this.streams.length - 1;
+          
+          streams = streams || this.streams.slice();
+          cx = new types.PathChange(path, cx);
+          streams[idx] = streams[idx].apply(cx, older);
+        }
+      });
       return streams ? new MergeStream(streams) : this;
     }
 
@@ -73,7 +95,7 @@ export function buildMerge(types) {
       for (let kk = 0; kk < this.streams.length; kk++) {
         let stream = this.streams[kk];
         let { c, abort } = this._filter(kk, stream.nextChange());
-        if (abort) this.streams[kk] = new types.FakeStream({ next: null });
+        if (abort) continue;
         if (c) return c;
         let next = stream.next();
         if (next) {
