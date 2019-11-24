@@ -20,21 +20,21 @@ export function buildMerge(types) {
       throw new Error("NYI");
     }
 
-    append(c, _older) {
-      let streams = this.streams;
+    append(c, older) {
+      let streams = null;
       if (c) {
         c.visit([], {
           replace: (path, cx) => {
-            const rest = path.slice(1);
-            const cxx = new types.PathChange(rest, cx);
-            this[path[0]].append(new types.PathChange(rest, cxx));
+            let idx = this._findStreamIndex(streams || this.streams, path[0]);
+            if (idx == -1) idx = this.streams.length - 1;
+
+            streams = streams || this.streams.slice();
+            cx = new types.PathChange(path, cx);
+            streams[idx] = streams[idx].apply(cx, older);
           }
         });
       }
-      if (streams != this.streams) {
-        return new MergeStream(streams);
-      }
-      return this;
+      return streams ? new MergeStream(streams) : this;
     }
 
     exists(key) {
@@ -44,6 +44,11 @@ export function buildMerge(types) {
         }
       }
       return false;
+    }
+
+    get(key) {
+      if (this.exists(key)) return this[key];
+      return new types.Null(null, new types.ChildStream(this, key));
     }
 
     next() {
@@ -78,6 +83,13 @@ export function buildMerge(types) {
       return null;
     }
 
+    _findStreamIndex(streams, key) {
+      for (let jj = streams.length - 1; jj >= 0; jj--) {
+        if (this.streams[jj].exists(key)) return jj;
+      }
+      return -1;
+    }
+
     _filter(kk, c) {
       if (c === null) {
         return { c, abort: false };
@@ -109,11 +121,10 @@ export function buildMerge(types) {
         return { c, abort };
       }
 
-      for (let jj = kk - 1; jj >= 0; jj--) {
-        if (this.streams[kk].exists(key)) {
-          // TODO: need to modify c so that its before or after = old value
-          throw new Error("NYI");
-        }
+      const idx = this._findStreamIndex(this.streams.slice(0, kk), key);
+      if (idx != -1) {
+        // TODO: need to modify c so that its before or after = old value
+        throw new Error("NYI");
       }
       return { c, abort };
     }

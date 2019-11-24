@@ -17,6 +17,8 @@ to make it dead simple to use.
     5. [Mutations converge](#mutations-converge)
     6. [Stream composition](#stream-composition)
         1. [Merge](#merge)
+            1. [Modifying existing keys in merged streams](#modifying-existing-keys-in-merged-streams)
+            2. [Adding new keys in merged streams](#adding-new-keys-in-merged-streams)
         2. [Object](#object)
         3. [Watch](#watch)
     7. [Network synchronization](#network-synchronization)
@@ -210,6 +212,45 @@ expect(s3.latest().boo.valueOf()).to.equal("hoot");
 expect(s3.latest().hello.valueOf()).to.equal("world");
 ```
 
+##### Modifying existing keys in merged streams
+
+Modifying a key (or some path) correctly transfers those mutations to
+the underlying streams.  
+
+```js
+// import {expect} from "./expect.js";
+// import {wrap} from "github.com/dotchain/streams/es6";
+// import {merge} from "github.com/dotchain/streams/es6";
+
+let s1 = wrap({hello: "world"});
+let s2 = wrap({boo: "hoo"});
+let s3 = merge([s1, s2]);
+
+s3.boo.replace("hoot");
+
+expect(s2.latest().boo.valueOf()).to.equal("hoot");
+```
+
+##### Adding new keys in merged streams
+
+When streams are merged, new keys always end up being added on the
+last stream.
+
+```js
+// import {expect} from "./expect.js";
+// import {wrap} from "github.com/dotchain/streams/es6";
+// import {merge} from "github.com/dotchain/streams/es6";
+
+let s1 = wrap({hello: "world"});
+let s2 = wrap({boo: "hoo"});
+let s3 = merge([s1, s2]);
+
+s3.get("la la").replace("la di da");
+
+expect(s2.latest()["la la"].valueOf()).to.equal("la di da");
+```
+
+
 #### Object
 
 A set of streams can be used to create an object stream using `object`:
@@ -375,5 +416,5 @@ readable ISO string.  `Unwrap` returns this value too (though
     - filter
 12. Mutable composition support
     - object
-    - merge
+    - ~ merge ~
 
