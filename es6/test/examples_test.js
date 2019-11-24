@@ -133,6 +133,17 @@ describe("examples from README.md", () => {
     expect(s3.latest().boo.valueOf()).to.equal("hoot");
     expect(s3.latest().hello.valueOf()).to.equal("world");
   });
+  it("does merging with duplicate keys", async () => {
+    // import {expect} from "./expect.js";
+    // import {wrap} from "github.com/dotchain/streams/es6";
+    // import {merge} from "github.com/dotchain/streams/es6";
+
+    let s1 = wrap({ hello: "world", ok: "computer" });
+    let s2 = wrap({ hello: "goodbye", boo: "hoo" });
+    let s3 = merge([s1, s2]);
+
+    expect(s3.hello.valueOf()).to.equal("goodbye");
+  });
   it("does modifying existing keys in merged streams", async () => {
     // import {expect} from "./expect.js";
     // import {wrap} from "github.com/dotchain/streams/es6";

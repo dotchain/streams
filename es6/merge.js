@@ -4,6 +4,7 @@ export function buildMerge(types) {
   class MergeStream {
     constructor(streams) {
       this.streams = streams;
+      this._value = null;
       for (let stream of streams) {
         stream.forEachKey && this._setupStream(stream);
       }
@@ -12,14 +13,35 @@ export function buildMerge(types) {
     _setupStream(stream) {
       stream.forEachKey(key => {
         let get = () => stream[key];
-        Object.defineProperty(this, key, { get });
+        Object.defineProperty(this, key, { configurable: true, get });
       });
     }
 
-    forEachKey(_fn) {
-      throw new Error("NYI");
+    forEachKey(fn) {
+      const seen = {};
+      for (let kk = this.streams.length - 1; kk >= 0; kk --) {
+        const result = this.streams[kk].forEachKey(key => {
+          if (seen[key]) return;
+          seen[key] = true;
+          return fn(key);
+        });
+        if (result) return result;
+      }
     }
 
+    valueOf() {
+      if (this._value !== null) return this._value;
+      this._value = {};
+      this.forEachKey(key => {
+        this._value[key] = this[key];
+      });
+      return this._value;
+    }
+
+    toJSON() {
+      return this.valueOf();
+    }
+    
     append(c, older) {
       if (c === null) return  this;
       

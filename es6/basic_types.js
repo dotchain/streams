@@ -119,9 +119,8 @@ export function buildBasicTypes(types) {
     forEachKey(fn) {
       let obj = this.toJSON();
       for (let key in obj) {
-        if (obj.hasOwnProperty(key) && fn(key)) {
-          return;
-        }
+        const result = obj.hasOwnProperty(key) && fn(key);
+        if (result) return result;
       }
     }
   };
