@@ -271,11 +271,10 @@ describe("examples from README.md", () => {
   it("does map", async () => {
     // import {expect} from "./expect.js";
     // import {wrap} from "github.com/dotchain/streams/es6";
-    // import {watch} from "github.com/dotchain/streams/es6";
     // import {map} from "github.com/dotchain/streams/es6";
 
     // uppercase converts a string stream into upper case string stream
-    let uppercase = name => watch(name, nn => nn.valueOf().toUpperCase());
+    let uppercase = name => name.valueOf().toUpperCase();
 
     let name = wrap({ first: "joe", last: "schmoe" });
     let mapped = map(name, uppercase);

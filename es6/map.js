@@ -2,8 +2,8 @@
 
 export function buildMap(types) {
   types.map = function map(s, fn) {
-    return new Map(types.wrap(s), fn);
-  }
+    return new Map(types.wrap(s), v => types.watch(v, fn));
+  };
 
   class Map {
     constructor(s, fn) {
@@ -11,7 +11,7 @@ export function buildMap(types) {
       this.fn = fn;
       this._value = null;
       this.s.forEachKey(key => {
-        Object.defineProperty(this, key, {get: () => this.get(key)});
+        Object.defineProperty(this, key, { get: () => this.get(key) });
       });
     }
 
@@ -29,7 +29,8 @@ export function buildMap(types) {
     }
 
     get(key) {
-      if (this._value && this._value.hasOwnProperty(key)) return this._value[key];
+      if (this._value && this._value.hasOwnProperty(key))
+        return this._value[key];
       return this.fn(this.s.get(key));
     }
 
@@ -51,9 +52,10 @@ export function buildMap(types) {
       if (c === null) return null;
 
       const modified = {};
-      c.visit([], {
-        replace: (path, c) => { modified[path[0]] = true }
-      });
+      const replace = path => {
+        modified[path[0]] = true;
+      };
+      c.visit([], { replace });
 
       const next = this.next();
       const builder = new types.ChangeBuilder();
@@ -63,6 +65,14 @@ export function buildMap(types) {
         builder.replace([key], new types.Replace(before, after));
       }
       return builder.result();
+    }
+
+    latest() {
+      let result = this;
+      for (let next = result.next(); next != null; next = next.next()) {
+        result = next;
+      }
+      return result;
     }
   }
 }
