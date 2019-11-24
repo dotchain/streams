@@ -10,7 +10,7 @@ describe("object", () => {
     let s1 = wrap("world");
     let s = object({ hello: s1, ok: "computer" });
     s = s.replacePath(["hello"], "computer");
-    
+
     expect(s1.latest().valueOf()).to.equal("computer");
     expect(JSON.parse(JSON.stringify(s))).to.deep.equal({
       hello: "computer",
