@@ -27,8 +27,9 @@ export function buildPathChange(types) {
         if (!to.hasOwnProperty(key) || key == this.path[0]) continue;
         result[key] = to[key];
       }
-      // TODO: set nullable values?
-      result[this.path[0]] = apply(rest, to[this.path[0]]);
+
+      const v = apply(rest, to[this.path[0]]);
+      if (v !== null) result[this.path[0]] = v;
       return result;
     }
 

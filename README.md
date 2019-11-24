@@ -13,18 +13,27 @@ to make it dead simple to use.
     1. [Wrapping and unwrapping](#wrapping-and-unwrapping)
     2. [Wrapping hashes](#wrapping-hashes)
     3. [Mutations](#mutations)
-    4. [Modifying hashes](#modifying-hashes)
-    5. [Mutations converge](#mutations-converge)
-    6. [Stream composition](#stream-composition)
-        1. [Merge](#merge)
-            1. [Merging with duplicate keys](#merging-with-duplicate-keys)
-            2. [Modifying existing keys in merged streams](#modifying-existing-keys-in-merged-streams)
-            3. [Adding new keys in merged streams](#adding-new-keys-in-merged-streams)
-        2. [Object](#object)
-            1. [Modifying existing keys in an object() stream](#modifying-existing-keys-in-an-object-stream)
-        3. [Watch](#watch)
-    7. [Network synchronization](#network-synchronization)
-    8. [Other basic types](#other-basic-types)
+        1. [Replace](#replace)
+        2. [Latest](#latest)
+        3. [Modifying properties/fields](#modifying-properties-fields)
+        4. [Modifying with replacePath](#modifying-with-replacepath)
+        5. [Adding fields with replacePath](#adding-fields-with-replacepath)
+        6. [Adding fields with .get](#adding-fields-with-get)
+        7. [Deleting fields](#deleting-fields)
+        8. [Mutations converge](#mutations-converge)
+        9. [Last writer wins](#last-writer-wins)
+    4. [Stream composition](#stream-composition)
+        1. [Merging two objects](#merging-two-objects)
+        2. [Merging with duplicate keys](#merging-with-duplicate-keys)
+        3. [Modifying existing keys in merged streams](#modifying-existing-keys-in-merged-streams)
+        4. [Adding new keys in merged streams](#adding-new-keys-in-merged-streams)
+        5. [Deleting keys from a merged stream](#deleting-keys-from-a-merged-stream)
+        6. [Delete resurfaces old keys](#delete-resurfaces-old-keys)
+        7. [Uinsg object() for static shapes](#uinsg-object-for-static-shapes)
+        8. [Modifying existing keys in an object() stream](#modifying-existing-keys-in-an-object-stream)
+        9. [Watch](#watch)
+    5. [Network synchronization](#network-synchronization)
+    6. [Other basic types](#other-basic-types)
 2. [Roadmap](#roadmap)
 
 ## Documentation
@@ -53,7 +62,7 @@ expect(s1 + " world").to.equal("hello world");
 
 NOTE: Most applications need [network
 synchronized](#network-synchronization) streams and do not typically
-create *adhoc* streams.
+create *adhoc* streams as in these examples.
 
 ### Wrapping hashes
 
@@ -69,7 +78,9 @@ expect(s1.hello.boo + "t").to.equal("hoot");
 
 ### Mutations
 
-In addition, wrapped objects support mutations methods, such as **replace**:
+#### Replace
+
+All wrapped objects allow being **replaced** with  another value:
 
 ```js
 // import {expect} from "./expect.js";
@@ -79,6 +90,8 @@ let s1 = wrap("hello");
 let s2 = s1.replace("world");
 expect("hello " + s2).to.equal("hello world");
 ```
+
+#### Latest
 
 Note that *replace* returns a new value leaving the original as is.
 But all older versions of the object can obtain the latest value by
@@ -93,9 +106,9 @@ let s2 = s1.replace("world");
 expect("" + s1.latest()).to.equal("" + s2);
 ```
 
-### Modifying hashes
+#### Modifying properties/fields
 
-Replace works on hashes too:
+Fields can be modified via the dot notation:
 
 ```js
 // import {expect} from "./expect.js";
@@ -107,8 +120,10 @@ expect(s2.valueOf()).to.equal("world");
 expect(s1.latest().hello.world.valueOf()).to.equal("world");
 ```
 
-A frequent operation for hashes is to replace a inner path but apply
-that on the current object. This is done with **replacePath**
+#### Modifying with replacePath
+
+The `replacePath` method is like `replace` except it takes a path
+instead of using the dot notation:
 
 ```js
 // import {expect} from "./expect.js";
@@ -119,6 +134,8 @@ let s2 = s1.replacePath(["hello", "world"], "boo");
 expect(s1.latest().hello.world.valueOf()).to.equal("boo");
 expect(s2.hello.world.valueOf()).to.equal("boo");
 ```
+
+#### Adding fields with replacePath
 
 This is also a convenient way to set an inner field if that path doesn't exist:
 
@@ -132,7 +149,11 @@ expect(s2.boo.hoo.valueOf()).to.equal("hoo");
 expect(s1.latest().boo.hoo.valueOf()).to.equal("hoo");
 ```
 
-Note that a field that does not exist can also be fetched using **get**:
+#### Adding fields with .get
+
+A field that does not exist can also be fetched using **get** which
+maps to a wrapped `null` value, but implements `replace` for
+convenience: 
 
 ```js
 // import {expect} from "./expect.js";
@@ -147,12 +168,29 @@ expect(s1.latest().boo.hoo.valueOf()).to.equal("hoot");
 expect(inner.latest().valueOf()).to.equal("hoot");
 ```
 
-### Mutations converge
+#### Deleting fields
+
+Fields can be deleted by replacing with null:
+
+```js
+// import {expect} from "./expect.js";
+// import {wrap} from "github.com/dotchain/streams/es6";
+
+let s1 = wrap({hello: "world"})
+s1.hello.replace(null);
+
+expect(s1.exists("hello")).to.equal(true);
+expect(s1.latest().exists("hello")).to.equal(false);
+expect(JSON.stringify(s1.latest())).to.equal("{}");
+
+```
+
+#### Mutations converge
 
 Mutations automatically converge on a stream.  Note that using a
 stream that is [synchronized](#network-synchronization) would mean
 that this convergence happens across network clients: i.e. all clients
-with this state automatically converge.
+with this state automatically converge:
 
 ```js
 // import {expect} from "./expect.js";
@@ -169,6 +207,8 @@ s = s.latest();
 expect(s.hello.valueOf()).to.equal("World");
 expect(s.boo.valueOf()).to.equal("Hoo");
 ```
+
+#### Last writer wins
 
 When multiple mutations conflict, the **last writer** generally wins.
 
@@ -194,10 +234,9 @@ Streams can be combined to create more streams using the `merge`,
 `object` and `watch` functions as well as the collection functions
 like `map` and `filter`.
 
-#### Merge
+#### Merging two objects
 
 Two separate object streams can be combined with `merge`:
-
 
 ```js
 // import {expect} from "./expect.js";
@@ -214,7 +253,7 @@ expect(s3.latest().boo.valueOf()).to.equal("hoot");
 expect(s3.latest().hello.valueOf()).to.equal("world");
 ```
 
-##### Merging with duplicate keys
+#### Merging with duplicate keys
 
 When the same key is present in multiple streams, the last one wins:
 
@@ -230,7 +269,7 @@ let s3 = merge([s1, s2]);
 expect(s3.hello.valueOf()).to.equal("goodbye");
 ```
 
-##### Modifying existing keys in merged streams
+#### Modifying existing keys in merged streams
 
 Modifying a key (or some path) correctly transfers those mutations to
 the underlying streams.  
@@ -249,7 +288,7 @@ s3.boo.replace("hoot");
 expect(s2.latest().boo.valueOf()).to.equal("hoot");
 ```
 
-##### Adding new keys in merged streams
+#### Adding new keys in merged streams
 
 When streams are merged, new keys always end up being added on the
 last stream.
@@ -268,10 +307,52 @@ s3.get("la la").replace("la di da");
 expect(s2.latest()["la la"].valueOf()).to.equal("la di da");
 ```
 
+#### Deleting keys from a merged stream
 
-#### Object
+Deleting a key from a merged stream correctly deletes the right
+underlying stream:
 
-A set of streams can be used to create an object stream using `object`:
+```js
+// import {expect} from "./expect.js";
+// import {wrap} from "github.com/dotchain/streams/es6";
+// import {merge} from "github.com/dotchain/streams/es6";
+
+let s1 = wrap({hello: "world"});
+let s2 = wrap({boo: "hoo"});
+let s3 = merge([s1, s2]);
+
+s3.hello.replace(null);
+expect(JSON.stringify(s1.latest())).to.equal("{}");
+
+s3 = s3.latest();
+expect(JSON.stringify(s3)).to.equal('{"boo":"hoo"}');
+
+```
+
+#### Delete resurfaces old keys
+
+Deleting a key from a merged stream may surface an older key:
+
+```js
+// import {expect} from "./expect.js";
+// import {wrap} from "github.com/dotchain/streams/es6";
+// import {merge} from "github.com/dotchain/streams/es6";
+
+let s1 = wrap({hello: "world", ok: "computer"});
+let s2 = wrap({boo: "hoo", ok: "not a computer"});
+let s3 = merge([s1, s2]);
+
+expect(s3.ok.valueOf()).to.equal("not a computer");
+s3.ok.replace(null);
+s3 = s3.latest();
+expect(s3.ok.valueOf()).to.equal("computer");
+
+```
+
+
+#### Uinsg object() for static shapes
+
+Streams can also be combined to form static shapes using `object`:
 
 ```js
 // import {expect} from "./expect.js";
@@ -290,10 +371,11 @@ const expected = {first: "John", last: "Doe"};
 expect(JSON.stringify(name.latest())).to.equal(JSON.stringify(expected));
 ```
 
-##### Modifying existing keys in an object() stream
+#### Modifying existing keys in an object() stream
 
-Modifying a key (or some path) correctly transfers those mutations to
-the underlying streams.  
+Static shapes do not allow adding or removing keys but modifying a key
+(or some path) correctly transfers those mutations to the underlying
+streams:
 
 ```js
 // import {expect} from "./expect.js";
@@ -445,6 +527,7 @@ readable ISO string.  `Unwrap` returns this value too (though
     - ~merge support in change types~
     - ~merge support in stream base class~
     - ~merge support in streams.sync()~
+    - multiple tabs support
     - add merge tests
 9. Branch merge support
 10. Server DB support
