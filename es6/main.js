@@ -2,7 +2,6 @@
 
 import { buildBasicTypes } from "./basic_types.js";
 import { buildStream } from "./stream.js";
-import { buildFakeStream } from "./fake_stream.js";
 import { buildChildStream } from "./child_stream.js";
 import { buildMerge } from "./merge.js";
 import { buildObject } from "./object.js";
@@ -22,7 +21,6 @@ function build() {
   let types = {};
   buildBasicTypes(types);
   buildStream(types);
-  buildFakeStream(types);
   buildChildStream(types);
   buildMerge(types);
   buildObject(types);
@@ -56,9 +54,8 @@ const Transport = types.Transport;
 const MemStore = types.MemStore;
 const FileStore = types.FileStore;
 const Cache = types.Cache;
-const FakeStream = types.FakeStream;
 
 export { wrap, sync, urlTransport, serve, merge, object, watch };
 export { Replace, PathChange, Transport, MemStore };
-export { FileStore, ChangeBuilder, FakeStream };
+export { FileStore, ChangeBuilder };
 export { Cache };

@@ -73,7 +73,7 @@ export function buildMerge(types) {
       for (let kk = 0; kk < this.streams.length; kk++) {
         let stream = this.streams[kk];
         let { c, abort } = this._filter(kk, stream.nextChange());
-        if (abort) this.streams[kk] = new types.FakeStream({ next: null });
+        if (abort) continue;
         if (c) return c;
         let next = stream.next();
         if (next) {
