@@ -32,8 +32,10 @@ to make it dead simple to use.
         7. [Uinsg object() for static shapes](#uinsg-object-for-static-shapes)
         8. [Modifying existing keys in an object() stream](#modifying-existing-keys-in-an-object-stream)
         9. [Watch](#watch)
-    5. [Network synchronization](#network-synchronization)
-    6. [Other basic types](#other-basic-types)
+    5. [Collections](#collections)
+        1. [map](#map)
+    6. [Network synchronization](#network-synchronization)
+    7. [Other basic types](#other-basic-types)
 2. [Roadmap](#roadmap)
 
 ## Documentation
@@ -432,6 +434,36 @@ name.first.replace("Charles");
 expect(nick.latest().valueOf()).to.equal("Chuck");
 ```
 
+### Collections
+
+Collections are represented as object hashes.  The typical collection
+methods like `map`, `filter`, `group`, `sort` etc are implemented on
+hashes.  Ordering happens through `forEachKey` calling the provided
+callback in the right order.  There is no default order.
+
+#### map
+
+The `map` function calls the provided callback for each key and
+returns a hash that has the values replaced with that of the provided
+function.
+
+
+```js
+// import {expect} from "./expect.js";
+// import {wrap} from "github.com/dotchain/streams/es6";
+// import {watch} from "github.com/dotchain/streams/es6";
+// import {map} from "github.com/dotchain/streams/es6";
+
+// uppercase converts a string stream into upper case string stream
+let uppercase = name => watch(name, nn => nn.valueOf().toUpperCase());
+
+let name = wrap({first: "joe", last: "schmoe"});
+let mapped = map(name, uppercase);
+
+expect(mapped.first.valueOf()).to.equal("JOE");
+expect(mapped.last.valueOf()).to.equal("SCHMOE");
+```
+
 
 ### Network synchronization
 
@@ -520,7 +552,8 @@ readable ISO string.  `Unwrap` returns this value too (though
     - ~PathChange change type~
     - ~fields accessible using dot notation~
 6. Collections
-    - map, filter
+    - ~map~, filter
+    - comprehensive tests
 7. Composition
     - ~watch, object, merge~
 8. ~Collaboration~

@@ -5,6 +5,7 @@ import { wrap } from "../main.js";
 import { merge } from "../main.js";
 import { object } from "../main.js";
 import { watch } from "../main.js";
+import { map } from "../main.js";
 import http from "http";
 import fs from "fs";
 import fetch from "node-fetch";
@@ -266,6 +267,21 @@ describe("examples from README.md", () => {
 
     name.first.replace("Charles");
     expect(nick.latest().valueOf()).to.equal("Chuck");
+  });
+  it("does map", async () => {
+    // import {expect} from "./expect.js";
+    // import {wrap} from "github.com/dotchain/streams/es6";
+    // import {watch} from "github.com/dotchain/streams/es6";
+    // import {map} from "github.com/dotchain/streams/es6";
+
+    // uppercase converts a string stream into upper case string stream
+    let uppercase = name => watch(name, nn => nn.valueOf().toUpperCase());
+
+    let name = wrap({ first: "joe", last: "schmoe" });
+    let mapped = map(name, uppercase);
+
+    expect(mapped.first.valueOf()).to.equal("JOE");
+    expect(mapped.last.valueOf()).to.equal("SCHMOE");
   });
   it("does network synchronization", async () => {
     // import http from "http";
