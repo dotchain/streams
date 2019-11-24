@@ -186,6 +186,18 @@ describe("examples from README.md", () => {
     const expected = { first: "John", last: "Doe" };
     expect(JSON.stringify(name.latest())).to.equal(JSON.stringify(expected));
   });
+  it("does modifying existing keys in an object() stream", async () => {
+    // import {expect} from "./expect.js";
+    // import {wrap} from "github.com/dotchain/streams/es6";
+    // import {object} from "github.com/dotchain/streams/es6";
+
+    let s1 = wrap("world");
+    let s2 = object({ hello: s1 });
+    s2.hello.replace("goodbye");
+
+    expect(s1.latest().valueOf()).to.equal("goodbye");
+    expect(s2.latest().hello.valueOf()).to.equal("goodbye");
+  });
   it("does watch", async () => {
     // import {expect} from "./expect.js";
     // import {wrap} from "github.com/dotchain/streams/es6";

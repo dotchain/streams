@@ -25,16 +25,36 @@ export function buildObject(types) {
       return this._value;
     }
 
-    replace(_v) {
-      throw new Error("NYI");
+    replace(v) {
+      return this.apply(new types.Replace(this, v), false);
     }
 
-    replacePath(_path, _value) {
-      throw new Error("NYI");
+    replacePath(path, value) {
+      let before = this.toJSON();
+      for (let key of path) {
+        if (before && before.hasOwnProperty(key)) {
+          before = before[key];
+        } else {
+          before = null;
+        }
+      }
+      return this.apply(
+        new types.PathChange(path, new types.Replace(before, value))
+      );
     }
 
-    apply(_c, _older) {
-      throw new Error("NYI");
+    apply(c, older) {
+      if (c === null) return this;
+
+      let obj = null;
+      c.visit([], {
+        replace: (path, cx) => {
+          obj = obj || Object.assign({}, this._value);
+          cx = new types.PathChange(path.slice(1), cx);
+          obj[path[0]] = obj[path[0]].apply(cx, older);
+        }
+      });
+      return obj ? new Obj(obj) : this;
     }
 
     get(key) {
