@@ -35,6 +35,9 @@ to make it dead simple to use.
     5. [Collections](#collections)
         1. [map](#map)
     6. [Network synchronization](#network-synchronization)
+        1. [Standalone server](#standalone-server)
+        2. [Browser example](#browser-example)
+        3. [Server with local storage example](#server-with-local-storage-example)
     7. [Other basic types](#other-basic-types)
 2. [Roadmap](#roadmap)
 
@@ -466,14 +469,44 @@ expect(mapped.last.valueOf()).to.equal("SCHMOE");
 
 ### Network synchronization
 
-The following example illustrates a client-server setup.
+#### Standalone server
+
+A standalone server is needed for clients to connect to.  The
+following is an example of such a server which uses a file storage
+mechanism (and properly serializes access to the file):
+
+```
+// import http from "http";
+// import fs from "fs";
+// import {serve} from "github.com/dotchain/streams/es6";
+// import {FileStore} from "github.com/dotchain/streams/es6";
+
+func startServer() {
+  let store = new FileStore("/tmp/ops.json", fs);
+  let server = http.createServer((req, res) => serve(store, req, res));
+  server.listen(8042);
+  return server;
+}
+```
+
+#### Browser example
+
+The following example illustrates a browser setup.  Note that this
+example includes an embedded server but that's just there to make the
+code testable.
+
+The example also includes a fake local storage implementation -- a
+browser set-up can just use `window.localStorage`
 
 ```js
 // import http from "http";
 // import fs from "fs";
 // import fetch from "node-fetch";
-// import {serve, urlTransport, sync} from "github.com/dotchain/streams/es6";
-// import {FileStore, Cache} from "github.com/dotchain/streams/es6";
+// import {serve} from "github.com/dotchain/streams/es6";
+// import {urlTransport} from "github.com/dotchain/streams/es6";
+// import {sync} from "github.com/dotchain/streams/es6";
+// import {FileStore} from "github.com/dotchain/streams/es6";
+// import {Cache} from "github.com/dotchain/streams/es6";
 
 let server = startServer();
 let {root, xport} = startClient();
@@ -494,6 +527,29 @@ expect(root2.latest() + "").to.equal("hello");
 server.close();
 fs.unlinkSync("/tmp/ops.json");
 
+function startClient() {
+  let xport = urlTransport("http://localhost:8042/", fetch);
+  let ls = fakeLocalStorage(); // window.localStorage on browsers
+  let root = sync(new Cache(ls), xport, newID());
+  return {root, xport};
+}
+
+function newID() {
+  let count = 0;
+  return () => {
+     count ++;
+     return `${count}`;
+  }
+}
+
+function fakeLocalStorage() {
+  let storage = {};
+  return {
+    setItem: (key, value) => { storage[key] = value + ""; },
+    getItem: (key) => storage[key]
+  }
+}
+
 function startServer() {
   let store = new FileStore("/tmp/ops.json", fs);
   let server = http.createServer((req, res) => serve(store, req, res));
@@ -501,15 +557,53 @@ function startServer() {
   return server;
 }
 
+```
+
+#### Server with local storage example
+
+The browser example above can be adapted to a node-js client setup
+very directly but a different use case is where the server uses
+streams connected to a local file storage directly (maybe exposed via
+REST api endpoints).
+
+```js
+// import fs from "fs";
+// import {serve} from "github.com/dotchain/streams/es6";
+// import {Transport} from "github.com/dotchain/streams/es6";
+// import {sync} from "github.com/dotchain/streams/es6";
+// import {FileStore} from "github.com/dotchain/streams/es6";
+// import {Cache} from "github.com/dotchain/streams/es6";
+
+let {root, xport} = startClient();
+
+// update root
+root.replace("hello");
+expect(root.latest() + "").to.equal("hello");
+
+// push the changes to the server
+await xport.push();
+
+// check that these are visible on another client
+let {root: root2, xport: xport2} = startClient();
+await xport2.pull();
+expect(root2.latest() + "").to.equal("hello");
+
+// cleanup
+fs.unlinkSync("/tmp/ops.json");
+
 function startClient() {
-  let xport = urlTransport("http://localhost:8042/", fetch);
-  let count = 0;
+  let xport = new Transport(new FileStore("/tmp/ops.json", fs));
   let ls = fakeLocalStorage(); // window.localStorage on browsers
-  let root = sync(new Cache(ls), xport, () => {
+  let root = sync(new Cache(ls), xport, newID());
+  return {root, xport};
+}
+
+function newID() {
+  let count = 0;
+  return () => {
      count ++;
      return `${count}`;
-  });
-  return {root, xport};
+  }
 }
 
 function fakeLocalStorage() {
@@ -559,6 +653,7 @@ readable ISO string.  `Unwrap` returns this value too (though
     - ~merge support in change types~
     - ~merge support in stream base class~
     - ~merge support in streams.sync()~
+    - transformed operations
     - multiple tabs support
     - add merge tests
 9. Branch merge support
