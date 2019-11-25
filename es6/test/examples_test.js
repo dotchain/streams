@@ -9,8 +9,12 @@ import { map } from "../main.js";
 import http from "http";
 import fs from "fs";
 import fetch from "node-fetch";
-import { serve, urlTransport, sync } from "../main.js";
-import { FileStore, Cache } from "../main.js";
+import { serve } from "../main.js";
+import { urlTransport } from "../main.js";
+import { sync } from "../main.js";
+import { FileStore } from "../main.js";
+import { Cache } from "../main.js";
+import { Transport } from "../main.js";
 
 describe("examples from README.md", () => {
   it("does wrapping and unwrapping", async () => {
@@ -282,12 +286,15 @@ describe("examples from README.md", () => {
     expect(mapped.first.valueOf()).to.equal("JOE");
     expect(mapped.last.valueOf()).to.equal("SCHMOE");
   });
-  it("does network synchronization", async () => {
+  it("does browser example", async () => {
     // import http from "http";
     // import fs from "fs";
     // import fetch from "node-fetch";
-    // import {serve, urlTransport, sync} from "github.com/dotchain/streams/es6";
-    // import {FileStore, Cache} from "github.com/dotchain/streams/es6";
+    // import {serve} from "github.com/dotchain/streams/es6";
+    // import {urlTransport} from "github.com/dotchain/streams/es6";
+    // import {sync} from "github.com/dotchain/streams/es6";
+    // import {FileStore} from "github.com/dotchain/streams/es6";
+    // import {Cache} from "github.com/dotchain/streams/es6";
 
     let server = startServer();
     let { root, xport } = startClient();
@@ -308,22 +315,76 @@ describe("examples from README.md", () => {
     server.close();
     fs.unlinkSync("/tmp/ops.json");
 
+    function startClient() {
+      let xport = urlTransport("http://localhost:8042/", fetch);
+      let ls = fakeLocalStorage(); // window.localStorage on browsers
+      let root = sync(new Cache(ls), xport, newID());
+      return { root, xport };
+    }
+
+    function newID() {
+      let count = 0;
+      return () => {
+        count++;
+        return `${count}`;
+      };
+    }
+
+    function fakeLocalStorage() {
+      let storage = {};
+      return {
+        setItem: (key, value) => {
+          storage[key] = value + "";
+        },
+        getItem: key => storage[key]
+      };
+    }
+
     function startServer() {
       let store = new FileStore("/tmp/ops.json", fs);
       let server = http.createServer((req, res) => serve(store, req, res));
       server.listen(8042);
       return server;
     }
+  });
+  it("does server with local storage example", async () => {
+    // import fs from "fs";
+    // import {serve} from "github.com/dotchain/streams/es6";
+    // import {Transport} from "github.com/dotchain/streams/es6";
+    // import {sync} from "github.com/dotchain/streams/es6";
+    // import {FileStore} from "github.com/dotchain/streams/es6";
+    // import {Cache} from "github.com/dotchain/streams/es6";
+
+    let { root, xport } = startClient();
+
+    // update root
+    root.replace("hello");
+    expect(root.latest() + "").to.equal("hello");
+
+    // push the changes to the server
+    await xport.push();
+
+    // check that these are visible on another client
+    let { root: root2, xport: xport2 } = startClient();
+    await xport2.pull();
+    expect(root2.latest() + "").to.equal("hello");
+
+    // cleanup
+    fs.unlinkSync("/tmp/ops.json");
 
     function startClient() {
-      let xport = urlTransport("http://localhost:8042/", fetch);
-      let count = 0;
+      let xport = new Transport(new FileStore("/tmp/ops.json", fs));
       let ls = fakeLocalStorage(); // window.localStorage on browsers
-      let root = sync(new Cache(ls), xport, () => {
+      let root = sync(new Cache(ls), xport, newID());
+      return { root, xport };
+    }
+
+    function newID() {
+      let count = 0;
+      return () => {
         count++;
         return `${count}`;
-      });
-      return { root, xport };
+      };
     }
 
     function fakeLocalStorage() {
