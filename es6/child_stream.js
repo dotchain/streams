@@ -7,6 +7,14 @@ export function buildChildStream(types) {
       this.key = key;
     }
 
+    withRef(r) {
+      throw new Error("Cannot set ref on a derived stream");
+    }
+
+    ref() {
+      return this.parent.ref().concat([this.key]);
+    }
+
     append(c, older) {
       let parent = this.parent.append(
         new types.PathChange([this.key], c),
