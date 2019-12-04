@@ -9,7 +9,9 @@ export function buildFileStore(types) {
     }
 
     fetch(version) {
-      return this._lock.using(this._filepath, ops => ops.slice(version));
+      return this._lock.using(this._filepath, ops =>
+        ops.slice(version, version + 1000)
+      );
     }
 
     write(writeOps) {

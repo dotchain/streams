@@ -23,6 +23,7 @@ describe("wrap(basic types)", () => {
         expect(s.valueOf()).to.deep.equal(base);
       }
       expect(JSON.stringify(s)).to.equal(JSON.stringify(base));
+      expect(s.ref().length).to.equal(0);
     });
   }
 
@@ -42,6 +43,8 @@ describe("wrap(dict)", () => {
     let gb = s.hello.replace("goodbye");
     expect(gb.valueOf()).to.equal("goodbye");
     expect(s.latest().hello.valueOf()).to.equal("goodbye");
+
+    expect(JSON.stringify(s.hello.ref())).to.deep.equal(`["hello"]`);
   });
 });
 

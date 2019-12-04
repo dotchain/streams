@@ -24,6 +24,19 @@ export function buildStream(types) {
     constructor() {
       this._next = null;
       this._nextChange = null;
+      this._ref = [];
+    }
+
+    ref() {
+      return this._ref;
+    }
+
+    withRef(r) {
+      const result = new Stream();
+      result._next = this._next;
+      result._nextChange = this._nextChange;
+      result._ref = r;
+      return result;
     }
 
     append(c, older) {

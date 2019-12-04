@@ -46,6 +46,14 @@ export function buildBasicTypes(types) {
       return new this.constructor(this._value, s);
     }
 
+    withRef(r) {
+      return new this.constructor(this._value, this._stream.withRef(r));
+    }
+
+    ref() {
+      return this._stream.ref();
+    }
+
     nextChange() {
       return this._stream.nextChange();
     }

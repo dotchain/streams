@@ -5,7 +5,7 @@ export function buildPathChange(types) {
   const commonPathLen = (p1, p2) => {
     if (p1.length === 0 || p2.length === 0) return 0;
     let i = 0;
-    for (; p1.length > 0 && p2.length > 0 && p1[i] === p2[i]; i++);
+    for (; i < p1.length && i < p2.length && p1[i] === p2[i]; i++);
     return i;
   };
 
