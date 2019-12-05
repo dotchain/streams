@@ -34,6 +34,12 @@ describe("wrap(basic types)", () => {
   });
 });
 
+describe("tracks ref", () => {
+  let s = wrap("hello").withRef(['booya']);
+  expect(JSON.stringify(s.replace("ok").ref())).to.equal(`["booya"]`);
+  expect(JSON.stringify(s.latest().ref())).to.equal(`["booya"]`);
+});
+
 describe("wrap(dict)", () => {
   it("wraps dicts", () => {
     let s = wrap({ hello: "world", boo: "hoo" });

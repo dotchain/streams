@@ -41,6 +41,7 @@ export function buildStream(types) {
 
     append(c, older) {
       const result = new Stream();
+      result._ref = this._ref;
       let tail = this;
       let next = result;
       let tailnext = tail.next();
