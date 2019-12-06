@@ -46,10 +46,10 @@ export function buildStream(types) {
       let next = result;
       let tailnext = tail.next();
       while (tailnext !== null) {
-        tail = tailnext;
         const merged = merge(tail.nextChange(), c, older);
         next = next.append(merged.self, older);
         c = merged.other;
+        tail = tailnext;
         tailnext = tail.next();
       }
       tail._nextChange = c;
