@@ -1,5 +1,8 @@
 # streams
 
+[![Build Status](https://travis-ci.com/dotchain/streams.svg?branch=master)](https://travis-ci.com/dotchain/streams)
+[![codecov](https://codecov.io/gh/dotchain/streams/branch/master/graph/badge.svg)](https://codecov.io/gh/dotchain/streams)
+
 This repository contains a streams package which implements arbitrary
 data sync for browser (or node) clients using an extremely simple and
 mostly transparent API.
