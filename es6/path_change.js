@@ -12,6 +12,7 @@ export function buildPathChange(types) {
   // PathChange represents a change at a path
   types.PathChange = class PathChange {
     constructor(path, change) {
+      if (typeof change === "undefined") throw new Error("undef type");
       if (change === null) return null;
       if (path.length === 0) return change;
 
@@ -54,7 +55,8 @@ export function buildPathChange(types) {
         self = new PathChange(this.path.slice(len), this.change);
       }
 
-      const merged = self.change.merge(other.change, older);
+      const merged = self.merge(other, older);
+
       const s = new PathChange(prefix, merged.self);
       const o = new PathChange(prefix, merged.other);
       return { self: s, other: o };

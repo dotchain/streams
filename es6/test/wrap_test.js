@@ -35,7 +35,7 @@ describe("wrap(basic types)", () => {
 });
 
 describe("tracks ref", () => {
-  let s = wrap("hello").withRef(['booya']);
+  let s = wrap("hello").withRef(["booya"]);
   expect(JSON.stringify(s.replace("ok").ref())).to.equal(`["booya"]`);
   expect(JSON.stringify(s.latest().ref())).to.equal(`["booya"]`);
 });
@@ -51,6 +51,27 @@ describe("wrap(dict)", () => {
     expect(s.latest().hello.valueOf()).to.equal("goodbye");
 
     expect(JSON.stringify(s.hello.ref())).to.deep.equal(`["hello"]`);
+  });
+
+  it("merges unrelated keys", () => {
+    let s = wrap({});
+    s.get("x")
+      .get("a")
+      .replace("a");
+    s.get("x")
+      .get("b")
+      .replace("b");
+    s.get("x")
+      .get("c")
+      .replace("c");
+
+    expect(JSON.parse(JSON.stringify(s.latest()))).to.deep.equal({
+      x: {
+        a: "a",
+        b: "b",
+        c: "c"
+      }
+    });
   });
 });
 
