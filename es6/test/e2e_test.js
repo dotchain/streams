@@ -4,13 +4,14 @@
 
 import { expect } from "./expect.js";
 import { Cache } from "../main.js";
-import { sync, urlTransport, serve } from "../main.js";
+import { sync, urlTransport, serve, transformStore } from "../main.js";
 import { MemStore, Replace } from "../main.js";
 
 describe("e2e piped", () => {
   it("writes and reads operations to the server", async () => {
     let store = new MemStore();
-    let fetch = fetchPipe((req, res) => serve(store, req, res));
+    let xstore = transformStore(store, null, null);
+    let fetch = fetchPipe((req, res) => serve(xstore, req, res));
     let xport = urlTransport("boo", fetch);
     let root = sync(new Cache(fakeLocalStorage()), xport, newID());
     root = root.replace("hello");
@@ -27,7 +28,8 @@ describe("e2e piped", () => {
 
   it("merges op with null change", async () => {
     let store = new MemStore();
-    let fetch = fetchPipe((req, res) => serve(store, req, res));
+    let xstore = transformStore(store, null, null);
+    let fetch = fetchPipe((req, res) => serve(xstore, req, res));
     let xport = urlTransport("boo", fetch);
     let root = sync(new Cache(fakeLocalStorage()), xport, newID());
     xport.write({
@@ -48,7 +50,8 @@ describe("e2e piped", () => {
 
   it("merges op with non-null change", async () => {
     let store = new MemStore();
-    let fetch = fetchPipe((req, res) => serve(store, req, res));
+    let xstore = transformStore(store, null, null);
+    let fetch = fetchPipe((req, res) => serve(xstore, req, res));
     let xport = urlTransport("boo", fetch);
     let root = sync(new Cache(fakeLocalStorage()), xport, newID());
     xport.write({

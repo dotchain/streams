@@ -17,6 +17,7 @@ import { buildWrap } from "./wrap.js";
 import { buildServer } from "./server.js";
 import { buildFileStore } from "./filestore_node.js";
 import { buildCache } from "./cache_browser.js";
+import { buildTransformStore } from "./transform_store.js";
 
 function build() {
   let types = {};
@@ -36,6 +37,7 @@ function build() {
   buildWrap(types);
   buildCache(types);
 
+  buildTransformStore(types);
   buildServer(types);
   buildFileStore(types);
   return types;
@@ -57,8 +59,10 @@ const Transport = types.Transport;
 const MemStore = types.MemStore;
 const FileStore = types.FileStore;
 const Cache = types.Cache;
+const transformStore = types.transformStore;
 
 export { wrap, sync, urlTransport, serve, merge, object, watch };
 export { Replace, PathChange, Transport, MemStore, map };
 export { FileStore, ChangeBuilder };
 export { Cache };
+export { transformStore };

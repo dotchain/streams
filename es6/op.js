@@ -1,13 +1,22 @@
 "use strict";
 
 export function buildOperation(types) {
+  function wrapChange(c) {
+    if (!c || c.merge) return c;
+
+    if (c && c.path) {
+      return new types.PathChange(c.path, c.change);
+    }
+    return new types.Replace(c.before, c.after);
+  }
+
   types.Operation = class Operation {
     constructor(id, version, basis, parentID, change) {
       this.id = id;
       this.version = version;
       this.basis = basis;
       this.parentID = parentID;
-      this.change = change;
+      this.change = wrapChange(change);
     }
 
     withChange(c) {
@@ -36,13 +45,17 @@ export function buildOperation(types) {
     }
 
     static wrap({ id, version, basis, parentID, change }) {
-      let c = null;
-      if (change && change.path) {
-        c = new types.PathChange(change.path, change.change);
-      } else if (change) {
-        c = new types.Replace(change.before, change.after);
-      }
-      return new Operation(id, version, basis, parentID, c);
+      return new Operation(id, version, basis, parentID, change);
+    }
+
+    toJSON() {
+      return {
+        id: this.id,
+        version: this.version,
+        basis: this.basis,
+        parentID: this.parentID,
+        change: this.change
+      };
     }
   };
 }

@@ -11,6 +11,7 @@ import fs from "fs";
 import fetch from "node-fetch";
 import { serve } from "../main.js";
 import { urlTransport } from "../main.js";
+import { transformStore } from "../main.js";
 import { sync } from "../main.js";
 import { FileStore } from "../main.js";
 import { Cache } from "../main.js";
@@ -292,6 +293,7 @@ describe("examples from README.md", () => {
     // import fetch from "node-fetch";
     // import {serve} from "github.com/dotchain/streams/es6";
     // import {urlTransport} from "github.com/dotchain/streams/es6";
+    // import {transformStore} from "github.com/dotchain/streams/es6";
     // import {sync} from "github.com/dotchain/streams/es6";
     // import {FileStore} from "github.com/dotchain/streams/es6";
     // import {Cache} from "github.com/dotchain/streams/es6";
@@ -342,7 +344,8 @@ describe("examples from README.md", () => {
 
     function startServer() {
       let store = new FileStore("/tmp/ops.json", fs);
-      let server = http.createServer((req, res) => serve(store, req, res));
+      let xstore = transformStore(store);
+      let server = http.createServer((req, res) => serve(xstore, req, res));
       server.listen(8042);
       return server;
     }

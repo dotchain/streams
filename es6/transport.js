@@ -90,7 +90,8 @@ export function buildTransport(types) {
         referrer: "no-referrer",
         body: JSON.stringify({ read: { from: version } })
       });
-      return body.json();
+      const ops = await body.json();
+      return ops.map(op => types.Operation.wrap(op));
     }
 
     async write(ops) {
