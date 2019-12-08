@@ -9,13 +9,14 @@ export function buildServer(types) {
       body += chunk;
     });
     req.on("end", async () => {
+      const wrap = x => types.Operation.wrap(x);
       try {
         const data = JSON.parse(body);
         let result = "";
         if (data.read) {
           result = await store.fetch(data.read.from);
         } else {
-          result = await store.write(data.write);
+          result = await store.write(data.write.map(wrap));
         }
         res.write(JSON.stringify(result));
         res.end();

@@ -483,10 +483,12 @@ mechanism (and properly serializes access to the file):
 // import fs from "fs";
 // import {serve} from "github.com/dotchain/streams/es6";
 // import {FileStore} from "github.com/dotchain/streams/es6";
+// import {transformStore} from "github.com/dotchain/streams/es6";
 
 func startServer() {
   let store = new FileStore("/tmp/ops.json", fs);
-  let server = http.createServer((req, res) => serve(store, req, res));
+  let xstore = transformStore(store);
+  let server = http.createServer((req, res) => serve(xstore, req, res));
   server.listen(8042);
   return server;
 }
@@ -507,6 +509,7 @@ browser set-up can just use `window.localStorage`
 // import fetch from "node-fetch";
 // import {serve} from "github.com/dotchain/streams/es6";
 // import {urlTransport} from "github.com/dotchain/streams/es6";
+// import {transformStore} from "github.com/dotchain/streams/es6";
 // import {sync} from "github.com/dotchain/streams/es6";
 // import {FileStore} from "github.com/dotchain/streams/es6";
 // import {Cache} from "github.com/dotchain/streams/es6";
@@ -555,7 +558,8 @@ function fakeLocalStorage() {
 
 function startServer() {
   let store = new FileStore("/tmp/ops.json", fs);
-  let server = http.createServer((req, res) => serve(store, req, res));
+  let xstore = transformStore(store);
+  let server = http.createServer((req, res) => serve(xstore, req, res));
   server.listen(8042);
   return server;
 }
