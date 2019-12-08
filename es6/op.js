@@ -5,7 +5,7 @@ export function buildOperation(types) {
     if (!c || c.merge) return c;
 
     if (c && c.path) {
-      return new types.PathChange(c.path, c.change);
+      return new types.PathChange(c.path, wrapChange(c.change));
     }
     return new types.Replace(c.before, c.after);
   }
