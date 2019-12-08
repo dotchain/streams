@@ -68,6 +68,27 @@ describe("e2e piped", () => {
     await xport.pull();
     expect(root.latest() + "").to.equal("world");
   });
+
+  it("transforms operations", async () => {
+    let store = new MemStore();
+    let xstore = transformStore(store, null, null);
+    let fetch = fetchPipe((req, res) => serve(xstore, req, res));
+    let xport = urlTransport("boo", fetch);
+    let root = sync(new Cache(fakeLocalStorage()), xport, newID());
+    root = root.replace({ hello: "world" });
+    root = root.replacePath(["hello"], "boo");
+    root = root.replacePath(["hello"], "hoo");
+    await xport.push();
+    await xport.pull();
+    expect(store.ops.length).to.equal(3);
+    expect(JSON.stringify(root)).to.equal(`{"hello":"hoo"}`);
+
+    xport = urlTransport("boo", fetch);
+    root = sync(new Cache(fakeLocalStorage()), xport, newID());
+    await xport.pull();
+    console.log(xport._version);
+    expect(JSON.stringify(root.latest())).to.equal(`{"hello":"hoo"}`);
+  });
 });
 
 function newID() {

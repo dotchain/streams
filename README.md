@@ -660,7 +660,7 @@ readable ISO string.  `Unwrap` returns this value too (though
     - ~merge support in change types~
     - ~merge support in stream base class~
     - ~merge support in streams.sync()~
-    - transformed operations
+    - ~transformed operations~
     - multiple tabs support
     - add merge tests
 9. Branch merge support
@@ -668,7 +668,7 @@ readable ISO string.  `Unwrap` returns this value too (though
 11. Mutable collections support
     - map
     - filter
-12. Mutable composition support
+12. ~Mutable composition support~
     - ~object~
     - ~merge~
 
