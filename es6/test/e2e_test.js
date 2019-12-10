@@ -69,7 +69,67 @@ describe("e2e piped", () => {
     expect(root.latest() + "").to.equal("world");
   });
 
-  it("transforms operations: no conflicts", async () => {
+  it("transforms operations: rebase local", async () => {
+    const store = new MemStore();
+    const raw = new MemOpsCache();
+    const xform = new MemOpsCache();
+    const xstore = transformStore(store, raw, xform);
+    const idgen = newID();
+    const fetch = fetchPipe((req, res) => serve(xstore, req, res));
+    const xport1 = urlTransport("boo", fetch);
+    const xport2 = urlTransport("boo", fetch);
+    let root1 = sync(new Cache(fakeLocalStorage()), xport1, idgen);
+    let root2 = sync(new Cache(fakeLocalStorage()), xport2, idgen);
+
+    root1 = root1.replace({ hello: "world" });
+    root2 = root2.replace({ hello: "goodbye" });
+
+    await xport1.push();
+    await xport2.pull();
+    await xport2.push();
+    await xport1.pull();
+
+    root1 = root1.latest();
+    root2 = root2.latest();
+    expect(JSON.stringify(root1)).to.equal(`{"hello":"goodbye"}`);
+    expect(JSON.stringify(root2)).to.equal(`{"hello":"goodbye"}`);
+
+    const ops = raw.get(0, 100);
+    expect(JSON.parse(JSON.stringify(ops))).to.deep.equal([
+      {
+        id: "1",
+        version: 0,
+        basis: -1,
+        parentID: null,
+        change: {
+          before: "",
+          after: {
+            hello: "world"
+          }
+        }
+      },
+      {
+        id: "2",
+        version: 1,
+        basis: 0,
+        parentID: null,
+        change: {
+          before: {
+            hello: "world"
+          },
+          after: {
+            hello: "goodbye"
+          }
+        }
+      }
+    ]);
+    for (let x of xform.get(0, 1000)) {
+      expect(x.xform).to.deep.equal(ops[x.xform.version]);
+      expect(JSON.stringify(x.merge)).to.deep.equal(`[]`);
+    }
+  });
+
+  it("transforms operations: replace!", async () => {
     const store = new MemStore();
     const raw = new MemOpsCache();
     const xform = new MemOpsCache();
