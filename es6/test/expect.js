@@ -26,6 +26,11 @@ export function expect(v) {
         expect(v[key]).to.deep.equal(other[key]);
       }
     }
+    for (let key in other) {
+      if (other.hasOwnProperty(key)) {
+        expect(v.hasOwnProperty(key)).to.equal(true);
+      }
+    }
   }
   return { to: { equal: equal, deep: { equal: deepEqual } } };
 }

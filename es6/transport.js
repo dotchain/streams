@@ -63,6 +63,7 @@ export function buildTransport(types) {
           this._pull(op);
           this._version = op.version;
         }
+        this._reading = null;
       })();
 
       return this._reading;
