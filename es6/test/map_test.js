@@ -3,7 +3,7 @@
 /* eslint-env mocha, browser */
 
 import { expect } from "./expect.js";
-import { wrap, map } from "../main.js";
+import { wrap, map, PathChange, Replace } from "../main.js";
 
 describe("map", () => {
   // uppercase converts a string stream into upper case string stream
@@ -13,8 +13,25 @@ describe("map", () => {
     let name = wrap({ first: "joe", last: "schmoe" });
     let mapped = map(name, uppercase);
 
+    expect(mapped.exists("first")).to.equal(true);
+    expect(mapped.exists("boo")).to.equal(false);
+
     expect(mapped.first.valueOf()).to.equal("JOE");
     expect(mapped.last.valueOf()).to.equal("SCHMOE");
+
+    expect(JSON.parse(JSON.stringify(mapped))).to.deep.equal({
+      first: "JOE",
+      last: "SCHMOE"
+    });
+
+    expect(mapped.get("first").valueOf()).to.equal("JOE");
+    expect(mapped.get("last").valueOf()).to.equal("SCHMOE");
+
+    const keys = [];
+    mapped.forEachKey(key => {
+      keys.push(key);
+    });
+    expect(JSON.stringify(keys)).to.deep.equal(`["first","last"]`);
   });
 
   it("handles key additions", () => {
@@ -24,12 +41,11 @@ describe("map", () => {
     name.get("boo").replace("hoo");
 
     expect(mapped.latest().boo.valueOf()).to.equal("HOO");
-    expect(
-      mapped
-        .get("boo")
-        .latest()
-        .valueOf()
-    ).to.equal("HOO");
+    const boo = mapped.get("boo").latest();
+    expect(boo.valueOf()).to.equal("HOO");
+
+    const c = new PathChange(["boo"], new Replace(null, "HOO"));
+    expect(mapped.nextChange()).to.deep.equal(c);
   });
 
   it("handles key removals", () => {
@@ -38,13 +54,12 @@ describe("map", () => {
 
     name.last.replace(null);
 
-    expect(
-      mapped
-        .latest()
-        .get("last")
-        .valueOf()
-    ).to.equal(null);
+    const last = mapped.latest().get("last");
+    expect(last.valueOf()).to.equal(null);
     expect(mapped.last.latest().valueOf()).to.equal(null);
+
+    const c = new PathChange(["last"], new Replace("SCHMOE", null));
+    expect(mapped.nextChange()).to.deep.equal(c);
   });
 
   it("handles key changes", () => {
@@ -55,5 +70,8 @@ describe("map", () => {
 
     expect(mapped.latest().last.valueOf()).to.equal("DOE");
     expect(mapped.last.latest().valueOf()).to.equal("DOE");
+
+    const c = new PathChange(["last"], new Replace("SCHMOE", "DOE"));
+    expect(mapped.nextChange()).to.deep.equal(c);
   });
 });
