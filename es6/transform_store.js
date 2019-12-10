@@ -37,22 +37,18 @@ export function buildTransformStore(types) {
     }
 
     async fetch(version) {
-      try {
-        return await this._fetch(version, maxOps);
-      } catch (err) {
-        console.log("********* Got err *******", err);
-        throw err;
-      }
+      return await this._fetch(version, maxOps);
     }
 
     async _fetch(version, count) {
-      const ops = this.raw.get(version, count);
+      const ops = this.xform.get(version, count).map(x => x.xform);
       const diff = count - ops.length;
       if (diff > 0) {
         const raw = await this.store.fetch(version + ops.length, diff);
         this.raw.set(version + ops.length, raw);
         for (let op of raw) {
-          ops.push((await this._transformAndCache(op)).xform);
+          const r = await this._transformAndCache(op);
+          ops.push(r.xform);
         }
       }
       return ops;
@@ -105,7 +101,7 @@ export function buildTransformStore(types) {
       for (let kk = 0; kk < ops.length; kk++) {
         const x = await this._transformAndCache(ops[kk]);
         const merged = x.xform.merge(result.xform);
-        result.xform = merged;
+        result.xform = merged.other;
         result.merge.push(merged.self);
       }
 

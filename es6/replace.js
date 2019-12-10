@@ -4,6 +4,8 @@ export function buildReplace(types) {
   // Replace represents a change that replaces one value with another.
   types.Replace = class Replace {
     constructor(before, after) {
+      if (before && before.toJSON) before = before.toJSON();
+      if (after && after.toJSON) after = after.toJSON();
       this.before = before;
       this.after = after;
     }
@@ -15,17 +17,15 @@ export function buildReplace(types) {
     merge(other, older) {
       let self = this;
 
-      if (other) {
-        if (older) {
-          self = new Replace(other.after, this.after);
-          other = null;
-        } else {
-          other = new Replace(self.after, other.after);
-          self = null;
-        }
+      if (!other) return { self, other };
+
+      if (older) {
+        self = new Replace(other.after, this.after);
+        return { self, other: null };
       }
 
-      return { self, other };
+      other = new Replace(self.after, other.after);
+      return { self: null, other };
     }
 
     visit(pathPrefix, visitor) {

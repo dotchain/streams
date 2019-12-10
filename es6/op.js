@@ -20,7 +20,7 @@ export function buildOperation(types) {
     }
 
     withChange(c) {
-      return new Operation(this.id, this.verison, this.basis, this.parentID, c);
+      return new Operation(this.id, this.version, this.basis, this.parentID, c);
     }
 
     merge(others) {
