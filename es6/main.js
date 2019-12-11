@@ -7,6 +7,7 @@ import { buildMerge } from "./merge.js";
 import { buildObject } from "./object.js";
 import { buildWatch } from "./watch.js";
 import { buildMap } from "./map.js";
+import { buildOrder } from "./order.js";
 import { buildOperation } from "./op.js";
 import { buildPathChange } from "./path_change.js";
 import { buildReplace } from "./replace.js";
@@ -28,6 +29,7 @@ function build() {
   buildObject(types);
   buildWatch(types);
   buildMap(types);
+  buildOrder(types);
   buildOperation(types);
   buildPathChange(types);
   buildReplace(types);
@@ -52,6 +54,8 @@ const merge = types.merge;
 const object = types.object;
 const watch = types.watch;
 const map = types.map;
+const order = types.order;
+const orderBy = types.orderBy;
 const Replace = types.Replace;
 const PathChange = types.PathChange;
 const ChangeBuilder = types.ChangeBuilder;
@@ -61,7 +65,17 @@ const FileStore = types.FileStore;
 const Cache = types.Cache;
 const transformStore = types.transformStore;
 
-export { wrap, sync, urlTransport, serve, merge, object, watch };
+export {
+  wrap,
+  sync,
+  urlTransport,
+  serve,
+  merge,
+  object,
+  watch,
+  order,
+  orderBy
+};
 export { Replace, PathChange, Transport, MemStore, map };
 export { FileStore, ChangeBuilder };
 export { Cache };

@@ -6,6 +6,8 @@ import { merge } from "../main.js";
 import { object } from "../main.js";
 import { watch } from "../main.js";
 import { map } from "../main.js";
+import { orderBy } from "../main.js";
+import { order } from "../main.js";
 import http from "http";
 import fs from "fs";
 import fetch from "node-fetch";
@@ -286,6 +288,53 @@ describe("examples from README.md", () => {
 
     expect(mapped.first.valueOf()).to.equal("JOE");
     expect(mapped.last.valueOf()).to.equal("SCHMOE");
+  });
+  it("does orderby", async () => {
+    // import {expect} from "./expect.js";
+    // import {wrap} from "github.com/dotchain/streams/es6";
+    // import {orderBy} from "github.com/dotchain/streams/es6";
+
+    const list = wrap({ one: { x: 2 }, two: { x: 1 } });
+    const sorted = orderBy(list, (list, key) => list[key].x);
+
+    let keys = [];
+    sorted.forEachKey(key => {
+      keys.push(key);
+    });
+    expect(JSON.stringify(keys)).to.equal(`["two","one"]`);
+
+    // updates remain sorted
+    list.one.x.replace(-1);
+    keys = [];
+    sorted.latest().forEachKey(key => {
+      keys.push(key);
+    });
+    expect(JSON.stringify(keys)).to.equal(`["one","two"]`);
+  });
+  it("does order", async () => {
+    // import {expect} from "./expect.js";
+    // import {wrap} from "github.com/dotchain/streams/es6";
+    // import {order} from "github.com/dotchain/streams/es6";
+
+    const list = wrap({ one: { x: 2 }, two: { x: 1 } });
+    const sorted = order(
+      list,
+      (list, key1, key2) => list[key1].x - list[key2].x
+    );
+
+    let keys = [];
+    sorted.forEachKey(key => {
+      keys.push(key);
+    });
+    expect(JSON.stringify(keys)).to.equal(`["two","one"]`);
+
+    // updates remain sorted
+    list.one.x.replace(-1);
+    keys = [];
+    sorted.latest().forEachKey(key => {
+      keys.push(key);
+    });
+    expect(JSON.stringify(keys)).to.equal(`["one","two"]`);
   });
   it("does browser example", async () => {
     // import http from "http";
