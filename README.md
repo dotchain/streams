@@ -3,13 +3,30 @@
 [![Build Status](https://travis-ci.com/dotchain/streams.svg?branch=master)](https://travis-ci.com/dotchain/streams)
 [![codecov](https://codecov.io/gh/dotchain/streams/branch/master/graph/badge.svg)](https://codecov.io/gh/dotchain/streams)
 
-This repository contains a streams package which implements arbitrary
-data sync for browser (or node) clients using an extremely simple and
-mostly transparent API.
+This repository contains a streams package. **Streams** is a very
+simple abstraction that combines functional programming, arbitrary
+data sync and reactivity.
 
-This uses *Operations Transformation* underneath to support multiple
-collaborative clients but the specific API has been chosen with care
-to make it dead simple to use.
+A primary goal of the streams approach is extreme simplicity which
+allows data-synchronization to be almost transparent.
+
+A *stream* is a logical value that changes over time.  In keeping with
+the immutable feel, the value itelf is not mutated but instead a
+pointer to the `next` version is maintained.  The `wrap` function
+described below creates streams out of raw values as needed.
+
+A key aspect of the implementation here is that when multiple clients
+connect to the same logical **stream**, the independent changes
+converge to the same value.
+
+**NOTE**: This is an implementation of
+[FRP](https://en.wikipedia.org/wiki/Functional_reactive_programming),
+using the **pull* model rather than the **push** model (though the
+same API exposed here can also effectively be implemented with a push
+model).  One major difference with most FRP systems is that this
+pacakge implements *convergence* when used in a distributed setting.
+This is done using [Operational
+Transformation](https://en.wikipedia.org/wiki/Operational_transformation).
 
 ## Contents
 1. [Documentation](#documentation)
@@ -37,6 +54,8 @@ to make it dead simple to use.
         9. [Watch](#watch)
     5. [Collections](#collections)
         1. [map](#map)
+        2. [orderBy](#orderby)
+        3. [order](#order)
     6. [Network synchronization](#network-synchronization)
         1. [Standalone server](#standalone-server)
         2. [Browser example](#browser-example)
@@ -443,7 +462,7 @@ expect(nick.latest().valueOf()).to.equal("Chuck");
 ### Collections
 
 Collections are represented as object hashes.  The typical collection
-methods like `map`, `filter`, `group`, `sort` etc are implemented on
+methods like `map`, `filter`, `group`, `order` etc are implemented on
 hashes.  Ordering happens through `forEachKey` calling the provided
 callback in the right order.  There is no default order.
 
@@ -467,6 +486,55 @@ let mapped = map(name, uppercase);
 
 expect(mapped.first.valueOf()).to.equal("JOE");
 expect(mapped.last.valueOf()).to.equal("SCHMOE");
+```
+
+#### orderBy
+
+The `orderBy` function is useful for sorting collections:
+
+
+```js
+// import {expect} from "./expect.js";
+// import {wrap} from "github.com/dotchain/streams/es6";
+// import {orderBy} from "github.com/dotchain/streams/es6";
+
+const list = wrap({one: {x: 2}, two: {x: 1}});
+const sorted = orderBy(list, (list, key) => list[key].x);
+
+let keys = [];
+sorted.forEachKey(key => { keys.push(key) });
+expect(JSON.stringify(keys)).to.equal(`["two","one"]`);
+
+// updates remain sorted
+list.one.x.replace(-1);
+keys = [];
+sorted.latest().forEachKey(key => { keys.push(key) });
+expect(JSON.stringify(keys)).to.equal(`["one","two"]`);
+```
+
+#### order
+
+The `order` function is useful for sorting collections by explicitly
+providing a comparision function:
+
+
+```js
+// import {expect} from "./expect.js";
+// import {wrap} from "github.com/dotchain/streams/es6";
+// import {order} from "github.com/dotchain/streams/es6";
+
+const list = wrap({one: {x: 2}, two: {x: 1}});
+const sorted = order(list, (list, key1, key2) => list[key1].x - list[key2].x);
+
+let keys = [];
+sorted.forEachKey(key => { keys.push(key) });
+expect(JSON.stringify(keys)).to.equal(`["two","one"]`);
+
+// updates remain sorted
+list.one.x.replace(-1);
+keys = [];
+sorted.latest().forEachKey(key => { keys.push(key) });
+expect(JSON.stringify(keys)).to.equal(`["one","two"]`);
 ```
 
 
@@ -652,7 +720,7 @@ readable ISO string.  `Unwrap` returns this value too (though
     - ~PathChange change type~
     - ~fields accessible using dot notation~
 6. Collections
-    - ~map~, filter
+    - ~map, order~, filter
     - comprehensive tests
 7. Composition
     - ~watch, object, merge~
