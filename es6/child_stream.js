@@ -7,8 +7,8 @@ export function buildChildStream(types) {
       this.key = key;
     }
 
-    withRef(r) {
-      throw new Error("Cannot set ref on a derived stream");
+    withRef(_r) {
+      throw new Error("NYI");
     }
 
     ref() {

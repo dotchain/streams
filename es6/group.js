@@ -6,7 +6,6 @@ export function buildGroup(types) {
     return types.wrap(stream.groups, stream);
   };
 
-  const valueOf = x => x && x.valueOf();
   function group(v, fn) {
     const result = {};
     v = (v && v.valueOf()) || {};
@@ -54,7 +53,8 @@ export function buildGroup(types) {
     append(c, older) {
       if (c === null) return this;
 
-      // TODO: handle keycounts cleanups
+      // TODO: handle case when last elt of group is deleted
+      // (the whole group should also be deleted)
       const changes = new types.ChangeBuilder();
       c.visit([], {
         replace: (path, cx) => {
@@ -91,7 +91,6 @@ export function buildGroup(types) {
       let current = this.s.valueOf();
       let keycounts = counts(this.groups);
 
-      console.log("Counts", keycounts);
       c.visit([], {
         replace: (path, cx) => {
           const updated = new types.PathChange(path, cx).apply(current);
@@ -109,11 +108,9 @@ export function buildGroup(types) {
             const changed = "" + beforeGroup !== "" + afterGroup;
             if (existed && (!exists || changed)) {
               keycounts[beforeGroup]--;
-              console.log("Decrementing", beforeGroup);
               const r = new types.Replace(current[key], null);
               changes.replace(["" + beforeGroup, key], r);
               if (keycounts[beforeGroup] === 0) {
-                console.log("Removing", beforeGroup, key);
                 const rx = new types.Replace({}, null);
                 changes.replace(["" + beforeGroup], rx);
               }

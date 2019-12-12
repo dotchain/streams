@@ -779,10 +779,9 @@ readable ISO string.  `Unwrap` returns this value too (though
     - ~streams.wrap support~
     - ~PathChange change type~
     - ~fields accessible using dot notation~
-6. Collections
+6. ~Collections~
     - ~map, order, orderBy, filter, groupBy~
-    - comprehensive tests
-7. Composition
+7. ~Composition~
     - ~watch, object, merge~
 8. ~Collaboration~
     - ~merge support in change types~
@@ -792,10 +791,12 @@ readable ISO string.  `Unwrap` returns this value too (though
     - multiple tabs support
     - add merge tests
 9. Branch merge support
-10. Server DB support
-11. Mutable collections support
-    - map
-    - filter
+10. Server support
+    - snapshots
+    - db storage
+    - expose writeable streams via store API
+11. ~Mutable collections support~
+    - ~order, orderBy, filter, groupBy~
 12. ~Mutable composition support~
     - ~object~
     - ~merge~

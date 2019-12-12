@@ -16,7 +16,7 @@ export function buildChanges(types) {
     }
 
     merge(other, older) {
-      const reuslt = [];
+      const result = [];
       for (let kk = 0; kk < this.changes.length; kk++) {
         const c = this.changes[kk];
         if (!c) continue;
