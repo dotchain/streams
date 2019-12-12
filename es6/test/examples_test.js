@@ -8,6 +8,8 @@ import { watch } from "../main.js";
 import { map } from "../main.js";
 import { orderBy } from "../main.js";
 import { order } from "../main.js";
+import { filter } from "../main.js";
+import { groupBy } from "../main.js";
 import http from "http";
 import fs from "fs";
 import fetch from "node-fetch";
@@ -295,7 +297,7 @@ describe("examples from README.md", () => {
     // import {orderBy} from "github.com/dotchain/streams/es6";
 
     const list = wrap({ one: { x: 2 }, two: { x: 1 } });
-    const sorted = orderBy(list, (list, key) => list[key].x);
+    const sorted = orderBy(list, (val, _key) => val.x);
 
     let keys = [];
     sorted.forEachKey(key => {
@@ -317,10 +319,7 @@ describe("examples from README.md", () => {
     // import {order} from "github.com/dotchain/streams/es6";
 
     const list = wrap({ one: { x: 2 }, two: { x: 1 } });
-    const sorted = order(
-      list,
-      (list, key1, key2) => list[key1].x - list[key2].x
-    );
+    const sorted = order(list, (val1, val2, _1, _2) => val1.x - val2.x);
 
     let keys = [];
     sorted.forEachKey(key => {
@@ -335,6 +334,46 @@ describe("examples from README.md", () => {
       keys.push(key);
     });
     expect(JSON.stringify(keys)).to.equal(`["one","two"]`);
+  });
+  it("does filter", async () => {
+    // import {expect} from "./expect.js";
+    // import {wrap} from "github.com/dotchain/streams/es6";
+    // import {filter} from "github.com/dotchain/streams/es6";
+
+    const list = wrap({ one: { x: 2 }, two: { x: -1 } });
+    const filtered = filter(list, (val, _key) => val.x > 0);
+
+    expect(JSON.stringify(filtered)).to.equal(`{"one":{"x":2}}`);
+
+    // updates work
+    list.two.x.replace(5);
+    expect(
+      filtered
+        .latest()
+        .get("two")
+        .get("x")
+        .valueOf()
+    ).to.equal(5);
+  });
+  it("does groupby", async () => {
+    // import {expect} from "./expect.js";
+    // import {wrap} from "github.com/dotchain/streams/es6";
+    // import {groupBy} from "github.com/dotchain/streams/es6";
+
+    const row1 = { x: 5, y: 23 };
+    const row2 = { x: 5, y: 11 };
+    const row3 = { x: 9, y: 6 };
+    const table = wrap({ row1, row2, row3 });
+    let grouped = groupBy(table, row => row.x);
+
+    let g = { "5": { row1, row2 }, "9": { row3 } };
+    expect(JSON.parse(JSON.stringify(grouped))).to.deep.equal(g);
+
+    // updates work
+    table.row2.x.replace(7);
+    grouped = grouped.latest();
+    g = { "5": { row1 }, "9": { row3 }, "7": { row2: { x: 7, y: 11 } } };
+    expect(JSON.parse(JSON.stringify(grouped))).to.deep.equal(g);
   });
   it("does browser example", async () => {
     // import http from "http";

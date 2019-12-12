@@ -19,7 +19,7 @@ export function buildMap(types) {
       if (this._value !== null) return this._value;
       this._value = {};
       this.s.forEachKey(key => {
-        this._value[key] = this.fn(this.s.get(key));
+        this._value[key] = this.fn(this.s.get(key), key);
       });
       return this._value;
     }
@@ -31,7 +31,7 @@ export function buildMap(types) {
     get(key) {
       if (this._value && this._value.hasOwnProperty(key))
         return this._value[key];
-      return this.fn(this.s.get(key));
+      return this.fn(this.s.get(key), key);
     }
 
     exists(key) {

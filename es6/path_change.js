@@ -1,6 +1,7 @@
 "use strict";
 
 export function buildPathChange(types) {
+  const valueOf = x => x && x.valueOf();
   const apply = (c, v) => (c ? c.apply(v) : v);
   const commonPathLen = (p1, p2) => {
     if (p1.length === 0 || p2.length === 0) return 0;
@@ -23,10 +24,10 @@ export function buildPathChange(types) {
     apply(to) {
       let rest = new PathChange(this.path.slice(1), this.change);
       let result = {};
-      to = to || {};
+      to = valueOf(to || {});
       for (let key in to) {
         if (!to.hasOwnProperty(key) || key == this.path[0]) continue;
-        result[key] = to[key];
+        result[key] = valueOf(to[key]);
       }
 
       const v = apply(rest, to[this.path[0]]);

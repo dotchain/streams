@@ -8,9 +8,12 @@ import { buildObject } from "./object.js";
 import { buildWatch } from "./watch.js";
 import { buildMap } from "./map.js";
 import { buildOrder } from "./order.js";
+import { buildGroup } from "./group.js";
+import { buildFilter } from "./filter.js";
 import { buildOperation } from "./op.js";
 import { buildPathChange } from "./path_change.js";
 import { buildReplace } from "./replace.js";
+import { buildChanges } from "./changes.js";
 import { buildChangeBuilder } from "./change_builder.js";
 import { buildSync } from "./sync.js";
 import { buildTransport } from "./transport.js";
@@ -30,9 +33,12 @@ function build() {
   buildWatch(types);
   buildMap(types);
   buildOrder(types);
+  buildGroup(types);
+  buildFilter(types);
   buildOperation(types);
   buildPathChange(types);
   buildReplace(types);
+  buildChanges(types);
   buildChangeBuilder(types);
   buildSync(types);
   buildTransport(types);
@@ -56,7 +62,10 @@ const watch = types.watch;
 const map = types.map;
 const order = types.order;
 const orderBy = types.orderBy;
+const groupBy = types.groupBy;
+const filter = types.filter;
 const Replace = types.Replace;
+const Changes = types.Changes;
 const PathChange = types.PathChange;
 const ChangeBuilder = types.ChangeBuilder;
 const Transport = types.Transport;
@@ -74,8 +83,12 @@ export {
   object,
   watch,
   order,
-  orderBy
+  orderBy,
+  groupBy,
+  filter
 };
+
+export { Changes };
 export { Replace, PathChange, Transport, MemStore, map };
 export { FileStore, ChangeBuilder };
 export { Cache };

@@ -7,7 +7,8 @@ import { wrap, map, PathChange, Replace } from "../main.js";
 
 describe("map", () => {
   // uppercase converts a string stream into upper case string stream
-  let uppercase = name => name.valueOf() && name.valueOf().toUpperCase();
+  let uppercase = (name, _key) =>
+    name.valueOf() && name.valueOf().toUpperCase();
 
   it("maps", () => {
     let name = wrap({ first: "joe", last: "schmoe" });
