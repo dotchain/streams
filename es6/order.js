@@ -9,11 +9,13 @@ export function buildOrder(types) {
     return new OrderBy(types.wrap(s), comparer(fn));
   };
 
+  const create = (o, val) => new OrderBy(val, o.fn, o._sortedKeys);
+
   class OrderBy {
-    constructor(v, compareFn) {
+    constructor(v, compareFn, sortedKeys) {
       this.v = v;
       this.fn = compareFn;
-      this._sortedKeys = null;
+      this._sortedKeys = sortedKeys || null;
       v.forEachKey(key => {
         Object.defineProperty(this, key, { get: () => this.get(key) });
       });
@@ -28,11 +30,11 @@ export function buildOrder(types) {
     }
 
     withStream(s) {
-      return new OrderBy(this.v.withStream(s), this.fn);
+      return create(this, this.v.withStream(s));
     }
 
     withRef(r) {
-      return new OrderBy(this.v.withRef(r), this.fn);
+      return create(this, this.v.withRef(r));
     }
 
     ref() {
@@ -79,7 +81,7 @@ export function buildOrder(types) {
         this.v.forEachKey(key => {
           this._sortedKeys.push(key);
         });
-        this._sortedKeys.sort((x, y) => this.fn(this.v, x, y));
+        this._sortedKeys.sort((x, y) => this.fn(this.v[x], this.v[y], x, y));
       }
       for (let key of this._sortedKeys) {
         const result = fn(key);
@@ -92,11 +94,9 @@ export function buildOrder(types) {
     const valueOf = x => x && x.valueOf();
 
     // fn returns a value that must be used for comparisons.
-    return (list, xKey, yKey) => {
-      const x = valueOf(fn(list, xKey));
-      const y = valueOf(fn(list, yKey));
-
-      console.log("comparing", list, xKey, yKey, x, y);
+    return (xVal, yVal, xKey, yKey) => {
+      const x = valueOf(fn(xVal, xKey));
+      const y = valueOf(fn(yVal, yKey));
 
       if (x === y) return 0;
       if (typeof x === "undefined") return 1;

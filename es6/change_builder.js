@@ -17,7 +17,7 @@ export function buildChangeBuilder(types) {
         return this.changes[0];
       }
 
-      throw new Error("NYI");
+      return new types.Changes(this.changes);
     }
 
     replace(pathPrefix, c) {

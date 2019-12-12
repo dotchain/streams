@@ -7,8 +7,8 @@ export function buildChildStream(types) {
       this.key = key;
     }
 
-    withRef(r) {
-      throw new Error("Cannot set ref on a derived stream");
+    withRef(_r) {
+      throw new Error("NYI");
     }
 
     ref() {
@@ -41,13 +41,19 @@ export function buildChildStream(types) {
     }
 
     _filter(c) {
-      if (!(c instanceof types.PathChange)) {
-        return { filtered: null, abort: true };
-      }
-      if (c.path.length == 0) return this._filter(c.change);
       let abort = false;
-      let filtered = c.path[0] === this.key ? c.change : null;
-      return { filtered, abort };
+      const filtered = new types.ChangeBuilder();
+      c.visit([], {
+        replace: (path, cx) => {
+          if (path.length === 0) {
+            abort = true;
+          }
+          if (!abort && path[0] === this.key) {
+            filtered.replace(path.slice(1), cx);
+          }
+        }
+      });
+      return { filtered: filtered.result(), abort };
     }
   };
 }

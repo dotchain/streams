@@ -1,22 +1,13 @@
 "use strict";
 
 export function buildOperation(types) {
-  function wrapChange(c) {
-    if (!c || c.merge) return c;
-
-    if (c && c.path) {
-      return new types.PathChange(c.path, wrapChange(c.change));
-    }
-    return new types.Replace(c.before, c.after);
-  }
-
   types.Operation = class Operation {
     constructor(id, version, basis, parentID, change) {
       this.id = id;
       this.version = version;
       this.basis = basis;
       this.parentID = parentID;
-      this.change = wrapChange(change);
+      this.change = types.wrapChange(change);
     }
 
     withChange(c) {

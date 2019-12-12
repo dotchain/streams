@@ -7,7 +7,8 @@ import { wrap, map, PathChange, Replace } from "../main.js";
 
 describe("map", () => {
   // uppercase converts a string stream into upper case string stream
-  let uppercase = name => name.valueOf() && name.valueOf().toUpperCase();
+  let uppercase = (name, _key) =>
+    name.valueOf() && name.valueOf().toUpperCase();
 
   it("maps", () => {
     let name = wrap({ first: "joe", last: "schmoe" });
@@ -73,5 +74,14 @@ describe("map", () => {
 
     const c = new PathChange(["last"], new Replace("SCHMOE", "DOE"));
     expect(mapped.nextChange()).to.deep.equal(c);
+  });
+
+  it("handles deep changes", () => {
+    let x = wrap({ first: { second: 5 } });
+    let mapped = map(x, val => val.second);
+
+    expect(JSON.stringify(mapped)).to.equal(`{"first":5}`);
+    x.first.second.replace(7);
+    expect(JSON.stringify(mapped.latest())).to.equal(`{"first":7}`);
   });
 });

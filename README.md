@@ -56,6 +56,8 @@ Transformation](https://en.wikipedia.org/wiki/Operational_transformation).
         1. [map](#map)
         2. [orderBy](#orderby)
         3. [order](#order)
+        4. [filter](#filter)
+        5. [groupBy](#groupby)
     6. [Network synchronization](#network-synchronization)
         1. [Standalone server](#standalone-server)
         2. [Browser example](#browser-example)
@@ -461,10 +463,12 @@ expect(nick.latest().valueOf()).to.equal("Chuck");
 
 ### Collections
 
-Collections are represented as object hashes.  The typical collection
-methods like `map`, `filter`, `group`, `order` etc are implemented on
-hashes.  Ordering happens through `forEachKey` calling the provided
-callback in the right order.  There is no default order.
+Collections are represented as object hashes.  The standard collection
+methods implemented for hashes are: `map`, `filter`, `groupBy`,
+`order`, `orderBy` and `filter`.
+
+All of these functions take a function as a parameter which is
+called on each item in the collection like so: `fn(value, key)`.
 
 #### map
 
@@ -488,10 +492,13 @@ expect(mapped.first.valueOf()).to.equal("JOE");
 expect(mapped.last.valueOf()).to.equal("SCHMOE");
 ```
 
+    Note: the return value of map does not support being mutated.
+
 #### orderBy
 
-The `orderBy` function is useful for sorting collections:
-
+The `orderBy` function is useful for sorting collections. A sorted
+collection guarantees that the `forEachKey` iteration will visit in
+the order specified:
 
 ```js
 // import {expect} from "./expect.js";
@@ -499,7 +506,7 @@ The `orderBy` function is useful for sorting collections:
 // import {orderBy} from "github.com/dotchain/streams/es6";
 
 const list = wrap({one: {x: 2}, two: {x: 1}});
-const sorted = orderBy(list, (list, key) => list[key].x);
+const sorted = orderBy(list, (val, _key) => val.x);
 
 let keys = [];
 sorted.forEachKey(key => { keys.push(key) });
@@ -512,11 +519,18 @@ sorted.latest().forEachKey(key => { keys.push(key) });
 expect(JSON.stringify(keys)).to.equal(`["one","two"]`);
 ```
 
+Sorted collections are otherwise like regular collections (including
+the ability to mutate items etc).
+
 #### order
 
-The `order` function is useful for sorting collections by explicitly
-providing a comparision function:
+The `order` function is a more elaborate version of `orderBy` -- the
+callback is used as a comparison function:
 
+* The signature of callback is `fn(val1, val2, key1, key2)`
+* The return value is negative if val1 comes before val2.
+* The return value is positive if val1 comes after val2.
+* The return value is zero if the two values are identical.
 
 ```js
 // import {expect} from "./expect.js";
@@ -524,7 +538,7 @@ providing a comparision function:
 // import {order} from "github.com/dotchain/streams/es6";
 
 const list = wrap({one: {x: 2}, two: {x: 1}});
-const sorted = order(list, (list, key1, key2) => list[key1].x - list[key2].x);
+const sorted = order(list, (val1, val2, _1, _2) => val1.x - val2.x);
 
 let keys = [];
 sorted.forEachKey(key => { keys.push(key) });
@@ -537,6 +551,52 @@ sorted.latest().forEachKey(key => { keys.push(key) });
 expect(JSON.stringify(keys)).to.equal(`["one","two"]`);
 ```
 
+#### filter
+
+The `filter` function returns a subset of the collection that matches
+the provided collection:
+
+```js
+// import {expect} from "./expect.js";
+// import {wrap} from "github.com/dotchain/streams/es6";
+// import {filter} from "github.com/dotchain/streams/es6";
+
+const list = wrap({one: {x: 2}, two: {x: -1}});
+const filtered = filter(list, (val, _key) => val.x > 0);
+
+expect(JSON.stringify(filtered)).to.equal(`{"one":{"x":2}}`);
+
+// updates work
+list.two.x.replace(5);
+expect(filtered.latest().get('two').get('x').valueOf()).to.equal(5);
+```
+
+Note that filtered values can be edited.
+
+#### groupBy
+
+The `groupBy` function groups values:
+
+```js
+// import {expect} from "./expect.js";
+// import {wrap} from "github.com/dotchain/streams/es6";
+// import {groupBy} from "github.com/dotchain/streams/es6";
+
+const row1 = {x: 5, y: 23};
+const row2 = {x: 5, y: 11};
+const row3 = {x: 9, y: 6};
+const table = wrap({row1, row2, row3});
+let grouped = groupBy(table, row => row.x);
+
+let g = {'5': {row1, row2}, '9': {row3}};
+expect(JSON.parse(JSON.stringify(grouped))).to.deep.equal(g);
+
+// updates work
+table.row2.x.replace(7);
+grouped = grouped.latest();
+g = {'5': {row1}, '9': {row3}, '7': {row2: {x: 7, y: 11}}};
+expect(JSON.parse(JSON.stringify(grouped))).to.deep.equal(g);
+```
 
 ### Network synchronization
 
@@ -719,10 +779,9 @@ readable ISO string.  `Unwrap` returns this value too (though
     - ~streams.wrap support~
     - ~PathChange change type~
     - ~fields accessible using dot notation~
-6. Collections
-    - ~map, order~, filter
-    - comprehensive tests
-7. Composition
+6. ~Collections~
+    - ~map, order, orderBy, filter, groupBy~
+7. ~Composition~
     - ~watch, object, merge~
 8. ~Collaboration~
     - ~merge support in change types~
@@ -732,10 +791,12 @@ readable ISO string.  `Unwrap` returns this value too (though
     - multiple tabs support
     - add merge tests
 9. Branch merge support
-10. Server DB support
-11. Mutable collections support
-    - map
-    - filter
+10. Server support
+    - snapshots
+    - db storage
+    - expose writeable streams via store API
+11. ~Mutable collections support~
+    - ~order, orderBy, filter, groupBy~
 12. ~Mutable composition support~
     - ~object~
     - ~merge~
