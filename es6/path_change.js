@@ -12,17 +12,19 @@ export function buildPathChange(types) {
 
   // PathChange represents a change at a path
   types.PathChange = class PathChange {
-    constructor(path, change) {
-      if (typeof change === "undefined") throw new Error("undef type");
+    static create(path, change) {
       if (change === null) return null;
       if (path.length === 0) return change;
+      return new PathChange(path, change);
+    }
 
+    constructor(path, change) {
       this.path = path;
       this.change = change;
     }
 
     apply(to) {
-      let rest = new PathChange(this.path.slice(1), this.change);
+      let rest = PathChange.create(this.path.slice(1), this.change);
       let result = {};
       to = valueOf(to || {});
       for (let key in to) {
@@ -43,6 +45,11 @@ export function buildPathChange(types) {
         return { self: null, other };
       }
 
+      if (!(other instanceof types.PathChange)) {
+        const merged = other.merge(this, !older);
+        return { self: merged.other, other: merged.self };
+      }
+
       const len = commonPathLen(this.path, other.path);
       if (len != this.path.length && len != other.path.length) {
         return { self: this, other };
@@ -51,15 +58,17 @@ export function buildPathChange(types) {
       let self = this;
       const prefix = this.path.slice(0, len);
       if (len === this.path.length) {
-        other = new PathChange(other.path.slice(len), other.change);
+        other = PathChange.create(other.path.slice(len), other.change);
+        self = this.change;
       } else {
-        self = new PathChange(this.path.slice(len), this.change);
+        self = PathChange.create(this.path.slice(len), this.change);
+        other = other.change;
       }
 
       const merged = self.merge(other, older);
 
-      const s = new PathChange(prefix, merged.self);
-      const o = new PathChange(prefix, merged.other);
+      const s = PathChange.create(prefix, merged.self);
+      const o = PathChange.create(prefix, merged.other);
       return { self: s, other: o };
     }
 

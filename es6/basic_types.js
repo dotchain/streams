@@ -28,9 +28,9 @@ export function buildBasicTypes(types) {
           before = null;
         }
       }
-      return this.apply(
-        new types.PathChange(path, new types.Replace(before, value))
-      );
+
+      const r = new types.Replace(before, value);
+      return this.apply(types.PathChange.create(path, r));
     }
 
     apply(c, older) {

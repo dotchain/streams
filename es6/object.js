@@ -38,9 +38,8 @@ export function buildObject(types) {
           before = null;
         }
       }
-      return this.apply(
-        new types.PathChange(path, new types.Replace(before, value))
-      );
+      const r = new types.Replace(before, value);
+      return this.apply(types.PathChange.create(path, r));
     }
 
     apply(c, older) {
@@ -50,7 +49,7 @@ export function buildObject(types) {
       c.visit([], {
         replace: (path, cx) => {
           obj = obj || Object.assign({}, this._value);
-          cx = new types.PathChange(path.slice(1), cx);
+          cx = types.PathChange.create(path.slice(1), cx);
           obj[path[0]] = obj[path[0]].apply(cx, older);
         }
       });
@@ -88,7 +87,7 @@ export function buildObject(types) {
         if (cx === null) {
           this.cached[key] = next;
         } else {
-          c = new types.PathChange([key], cx);
+          c = types.PathChange.create([key], cx);
           return true;
         }
       });

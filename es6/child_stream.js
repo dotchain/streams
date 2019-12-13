@@ -17,7 +17,7 @@ export function buildChildStream(types) {
 
     append(c, older) {
       let parent = this.parent.append(
-        new types.PathChange([this.key], c),
+        types.PathChange.create([this.key], c),
         older
       );
       return new ChildStream(parent, this.key);

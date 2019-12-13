@@ -15,16 +15,18 @@ export function buildReplace(types) {
     }
 
     merge(other, older) {
-      let self = this;
-
-      if (!other) return { self, other };
-
-      if (older) {
-        self = new Replace(other.after, this.after);
-        return { self, other: null };
+      if (!other) return { self: this, other };
+      if (!(other instanceof Replace)) {
+        const merged = other.merge(this, !older);
+        return { self: merged.other, other: merged.self };
       }
 
-      other = new Replace(self.after, other.after);
+      if (older) {
+        const r = new Replace(other.after, this.after);
+        return { self: r, other: null };
+      }
+
+      other = new Replace(this.after, other.after);
       return { self: null, other };
     }
 

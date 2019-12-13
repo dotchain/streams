@@ -1,10 +1,15 @@
 "use strict";
 
 export function buildChanges(types) {
+  const merge = (l, r, old) => (l ? l.merge(r, old) : { self: l, other: r });
   types.Changes = class Changes {
-    constructor(changes) {
+    static create(changes) {
       if (!changes || changes.length === 0) return null;
-      if (changes.length === 0) return changes[0];
+      if (changes.length === 1) return changes[0];
+      return new Changes(changes);
+    }
+
+    constructor(changes) {
       this.changes = changes;
     }
 
@@ -18,13 +23,11 @@ export function buildChanges(types) {
     merge(other, older) {
       const result = [];
       for (let kk = 0; kk < this.changes.length; kk++) {
-        const c = this.changes[kk];
-        if (!c) continue;
-        const merged = c.merge(other, older);
+        const merged = merge(this.changes[kk], other, older);
         if (merged.self) result.push(merged.self);
         other = merged.other;
       }
-      return { self: new Changes(result), other };
+      return { self: Changes.create(result), other };
     }
 
     visit(pathPrefix, visitor) {

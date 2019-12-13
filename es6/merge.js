@@ -30,9 +30,8 @@ export function buildMerge(types) {
           before = null;
         }
       }
-      return this.apply(
-        new types.PathChange(path, new types.Replace(before, value))
-      );
+      const r = new types.Replace(before, value);
+      return this.apply(types.PathChange.create(path, r));
     }
 
     apply(c) {
@@ -74,7 +73,7 @@ export function buildMerge(types) {
           if (idx == -1) idx = this.streams.length - 1;
 
           streams = streams || this.streams.slice();
-          cx = new types.PathChange(path, cx);
+          cx = types.PathChange.create(path, cx);
           streams[idx] = streams[idx].apply(cx, older);
         }
       });
@@ -144,7 +143,7 @@ export function buildMerge(types) {
         replace: (path, cx) => {
           if (abort) return;
           const rest =
-            path.length > 1 ? new types.PathChange(path.slice(1), cx) : cx;
+            path.length > 1 ? types.PathChange.create(path.slice(1), cx) : cx;
           let result = this._filterKey(kk, path[0], rest);
           abort = abort || result.abort;
           builder.replace([path[0]], result.c);
