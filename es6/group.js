@@ -93,7 +93,7 @@ export function buildGroup(types) {
 
       c.visit([], {
         replace: (path, cx) => {
-          const updated = new types.PathChange(path, cx).apply(current);
+          const updated = types.PathChange.create(path, cx).apply(current);
           if (path.length === 0) {
             const g = group(cx.after, this.fn);
             const r = new types.Replace(group(cx.before, this.fn), g);

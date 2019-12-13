@@ -9,15 +9,7 @@ export function buildChangeBuilder(types) {
     }
 
     result() {
-      if (this.changes.length === 0) {
-        return null;
-      }
-
-      if (this.changes.length == 1) {
-        return this.changes[0];
-      }
-
-      return new types.Changes(this.changes);
+      return types.Changes.create(this.changes);
     }
 
     replace(pathPrefix, c) {
@@ -32,7 +24,7 @@ export function buildChangeBuilder(types) {
               this.replaced = this.changes.push(cx);
             }
           } else {
-            this.changes.push(new types.PathChange(path, cx));
+            this.changes.push(types.PathChange.create(path, cx));
           }
         }
       });

@@ -43,14 +43,14 @@ export function buildWrap(types) {
   };
 
   types.wrapChange = wrapChange;
-  
+
   function wrapChange(c) {
     if (!c || c.merge) return c;
     if (Array.isArray(c)) {
-      return new types.Changes(c.map(cx => wrapChange(cx)));
+      return types.Changes.create(c.map(cx => wrapChange(cx)));
     }
     if (c && c.path) {
-      return new types.PathChange(c.path, wrapChange(c.change));
+      return types.PathChange.create(c.path, wrapChange(c.change));
     }
     return new types.Replace(c.before, c.after);
   }
