@@ -11,8 +11,8 @@ export function buildChildStream(types) {
       throw new Error("NYI");
     }
 
-    ref() {
-      return this.parent.ref().concat([this.key]);
+    ref(subPath) {
+      return this.parent.ref([this.key].concat(subPath || []));
     }
 
     append(c, older) {

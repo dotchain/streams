@@ -37,8 +37,8 @@ export function buildOrder(types) {
       return create(this, this.v.withRef(r));
     }
 
-    ref() {
-      return this.v.ref();
+    ref(subPath) {
+      return this.v.ref(subPath);
     }
 
     next() {

@@ -93,4 +93,13 @@ describe("order", () => {
 
     expect(keys(o)).to.deep.equal(["ok", "hello"]);
   });
+
+  it("implements ref", () => {
+    let s = wrap({ hello: 42, ok: 33 }).withRef(["hey"]);
+    let o = orderBy(s, x => x);
+    let ok = o.withRef(["ok"]);
+
+    expect(o.ref()).to.deep.equal(["hey"]);
+    expect(ok.ref()).to.deep.equal(["ok"]);
+  });
 });

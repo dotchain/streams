@@ -40,8 +40,11 @@ export function buildGroup(types) {
       this._ref = [];
     }
 
-    ref() {
-      return this._ref;
+    ref(subPath) {
+      if (subPath && subPath.length > 1) {
+        return this.s.get(subPath[1]).ref(subPath.slice(2));
+      }
+      return this._ref.concat(subPath || []);
     }
 
     withRef(r) {

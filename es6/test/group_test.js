@@ -66,4 +66,26 @@ describe("group", function() {
       9: { five: { x: 5, y: 4 } }
     });
   });
+
+  it("implements ref", () => {
+    const table = wrap({
+      one: { x: 5, y: 9 },
+      two: { x: 3, y: 5 },
+      three: { x: 6, y: 2 }
+    }).withRef(["hey"]);
+    const g = groupBy(table, row => row.x + row.y);
+    const g2 = g.withRef(["g"]);
+
+    expect(g2.ref()).to.deep.equal(["g"]);
+    expect(g.ref()).to.deep.equal([]);
+    expect(g.get("8").ref()).to.deep.equal(["8"]);
+    expect(g2.get("8").ref()).to.deep.equal(["g", "8"]);
+
+    expect(
+      g2
+        .get("8")
+        .get("two")
+        .ref()
+    ).to.deep.equal(["hey", "two"]);
+  });
 });
