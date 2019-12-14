@@ -27,8 +27,8 @@ export function buildStream(types) {
       this._ref = [];
     }
 
-    ref() {
-      return this._ref;
+    ref(subPath) {
+      return this._ref.concat(subPath || []);
     }
 
     withRef(r) {

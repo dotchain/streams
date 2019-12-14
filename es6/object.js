@@ -9,12 +9,28 @@ export function buildObject(types) {
     constructor(o) {
       this._value = o;
       this._cached = {};
+      this._ref = [];
       const getter = key => () => this.get(key);
       for (let key in o) {
         if (o.hasOwnProperty(key)) {
           Object.defineProperty(this, key, { get: getter(key) });
         }
       }
+    }
+
+    ref(subPath) {
+      if (subPath && subPath.length > 0) {
+        const child = (this._value || {})[subPath[0]];
+        if (child && child.ref) return child.ref(subPath.slice(1));
+      }
+      return this._ref.concat(subPath || []);
+    }
+
+    withRef(r) {
+      const result = new Obj(this._value);
+      result._cached = this._cached;
+      result._ref = r;
+      return result;
     }
 
     valueOf() {

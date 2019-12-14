@@ -50,8 +50,8 @@ export function buildBasicTypes(types) {
       return new this.constructor(this._value, this._stream.withRef(r));
     }
 
-    ref() {
-      return this._stream.ref();
+    ref(subPath) {
+      return this._stream.ref(subPath);
     }
 
     nextChange() {
