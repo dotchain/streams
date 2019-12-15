@@ -17,6 +17,7 @@ import { buildChanges } from "./changes.js";
 import { buildChangeBuilder } from "./change_builder.js";
 import { buildSync } from "./sync.js";
 import { buildTransport } from "./transport.js";
+import { buildSnapshot } from "./snapshot.js";
 import { buildWrap } from "./wrap.js";
 import { buildServer } from "./server.js";
 import { buildFileStore } from "./filestore_node.js";
@@ -42,6 +43,7 @@ function build() {
   buildChangeBuilder(types);
   buildSync(types);
   buildTransport(types);
+  buildSnapshot(types);
   buildWrap(types);
   buildCache(types);
 
@@ -69,6 +71,7 @@ const Changes = types.Changes;
 const PathChange = types.PathChange;
 const ChangeBuilder = types.ChangeBuilder;
 const Transport = types.Transport;
+const Snapshot = types.Snapshot;
 const MemStore = types.MemStore;
 const FileStore = types.FileStore;
 const Cache = types.Cache;
@@ -90,6 +93,6 @@ export {
 
 export { Changes };
 export { Replace, PathChange, Transport, MemStore, map };
-export { FileStore, ChangeBuilder };
+export { FileStore, ChangeBuilder, Snapshot };
 export { Cache };
 export { transformStore };
