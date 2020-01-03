@@ -1,0 +1,22 @@
+{
+  "name": "streams",
+  "version": "1.0.0",
+  "description": "Reactive collaborative data sync using simple transparent APIs",
+  "main": "es6/main.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dotchain/streams.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dotchain/streams/issues"
+  },
+  "homepage": "https://github.com/dotchain/streams#readme"
+}
