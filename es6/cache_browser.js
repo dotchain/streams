@@ -3,8 +3,9 @@
 export function buildCache(types) {
   // Store implements a local-storage based cache
   types.Cache = class Cache {
-    constructor(localStorage, prefix) {
+    constructor(localStorage, prefix, initState) {
       this._ls = localStorage;
+      this._init = JSON.stringify(initState || "");
       this._prefix = prefix || "";
     }
 
@@ -25,7 +26,9 @@ export function buildCache(types) {
     }
 
     get snapshot() {
-      return JSON.parse(this._ls.getItem(this._prefix + "snapshot") || `""`);
+      return JSON.parse(
+        this._ls.getItem(this._prefix + "snapshot") || this._init
+      );
     }
 
     setSnapshot(p) {

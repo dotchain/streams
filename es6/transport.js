@@ -36,7 +36,8 @@ export function buildTransport(types) {
         return this._writing;
       }
 
-      this._writing = (async () => {
+      let finished = false;
+      const writing = (async () => {
         try {
           this._push();
           let sending = this._unsent.slice();
@@ -46,10 +47,12 @@ export function buildTransport(types) {
           }
         } finally {
           this._writing = null;
+          finished = true;
         }
       })();
 
-      return this._writing;
+      this._writing = finished ? null : writing;
+      return writing;
     }
 
     pull() {
@@ -57,16 +60,22 @@ export function buildTransport(types) {
         return this._reading;
       }
 
-      this._reading = (async () => {
-        let ops = await this._store.fetch(this._version + 1);
-        for (let op of ops) {
-          this._pull(op);
-          this._version = op.version;
+      let finished = false;
+      const reading = (async () => {
+        try {
+          let ops = await this._store.fetch(this._version + 1);
+          for (let op of ops) {
+            this._pull(op);
+            this._version = op.version;
+          }
+        } finally {
+          this._reading = null;
+          finished = true;
         }
-        this._reading = null;
       })();
 
-      return this._reading;
+      this._reading = finished ? null : reading;
+      return reading;
     }
   };
 
