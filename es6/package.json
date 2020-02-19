@@ -59,7 +59,7 @@
   },
   "homepage": "https://github.com/dotchain/streams",
   "devDependencies": {
-    "codecov": "^3.3.0",
+    "codecov": "^3.6.5",
     "eslint": "^5.16.0",
     "esm": "^3.2.22",
     "karma": "^4.1.0",
