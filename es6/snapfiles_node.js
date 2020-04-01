@@ -24,8 +24,7 @@ export function buildSnapFiles(types) {
         return this._initValue;
       }
 
-      const save =
-        version > this._ver && !parentID && version % this._chunkSize === 0;
+      const save = !parentID && version % this._chunkSize === 0;
       this._ver = Math.max(this._ver, version);
       const key = parentID ? `${version}-${parentID}` : `${version}`;
       if (this._cache.hasOwnProperty(key)) {
