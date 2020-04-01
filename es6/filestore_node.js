@@ -9,8 +9,9 @@ export function buildFileStore(types) {
     }
 
     fetch(version) {
+      const wrap = types.Operation.wrap;
       return this._lock.using(this._filepath, ops =>
-        ops.slice(version, version + 1000)
+        ops.slice(version, version + 1000).map(wrap)
       );
     }
 

@@ -23,6 +23,7 @@ import { buildServer } from "./server.js";
 import { buildFileStore } from "./filestore_node.js";
 import { buildCache } from "./cache_browser.js";
 import { buildTransformStore } from "./transform_store.js";
+import { buildSnapFiles } from "./snapfiles_node.js";
 
 function build() {
   let types = {};
@@ -50,6 +51,7 @@ function build() {
   buildTransformStore(types);
   buildServer(types);
   buildFileStore(types);
+  buildSnapFiles(types);
   return types;
 }
 
@@ -76,6 +78,7 @@ const MemStore = types.MemStore;
 const FileStore = types.FileStore;
 const Cache = types.Cache;
 const transformStore = types.transformStore;
+const SnapFiles = types.SnapFiles;
 
 export {
   wrap,
@@ -96,3 +99,4 @@ export { Replace, PathChange, Transport, MemStore, map };
 export { FileStore, ChangeBuilder, Snapshot };
 export { Cache };
 export { transformStore };
+export { SnapFiles };
