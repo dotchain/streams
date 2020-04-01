@@ -38,7 +38,7 @@ describe("snapfiles", () => {
     });
 
     it("reads old snapshots", async () => {
-      files["dir/snapshot-4.json"] = "snap four";
+      files["dir/snapshot-4.json"] = `"snap four"`;
       let result = await snapfiles.get(4, "", async () => "four");
       expect(result).to.equal("snap four");
       expect(snapfiles.maxVersion()).to.equal(8);

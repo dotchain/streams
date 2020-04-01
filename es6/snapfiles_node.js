@@ -41,7 +41,7 @@ export function buildSnapFiles(types) {
     async _readFileOrFetch(key, save, fetch) {
       const path = `${this._datadir}/snapshot-${key}.json`;
       try {
-        return await this._fs.promises.readFile(path, "utf8");
+        return JSON.parse(await this._fs.promises.readFile(path, "utf8"));
       } catch (err) {
         if (err.code !== "ENOENT") {
           throw err;
